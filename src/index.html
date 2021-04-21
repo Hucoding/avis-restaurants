@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>Avis restaurant</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="./css/style.css" >
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  </head>
+
+  <body>
+
+    <header>
+      
+      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand" href="#">Avis restaurant</a>
+
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+
+          <!-- Searchbar -->
+          <ul class="navbar-nav mr-auto ml-auto">
+            <li class="nav-item">
+              <div class="justify-content-md-center">
+                <form class="form-inline my-2 my-lg-0 my-lg-0">
+                  <input class="form-control mr-sm-2" type="text" placeholder="Recherchez une ville ..." aria-label="Search" style="width: 600px;">
+                </form>
+              </div>
+            </li>
+          </ul>
+
+          <ul class="navbar-nav ml-auto">
+            <!-- Bouton d'ajout pour un avis ou un restaurant -->
+            <li class="nav-item">
+              <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle addButton" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
+                  Ajouter +
+                </button>
+                <ul class="dropdown-menu dropdown-menu-lg-end dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                  <li><a class="dropdown-item" href="#">Restaurant</a></li>
+                  <li><a class="dropdown-item" href="#">Avis</a></li>
+                </ul>
+              </div>
+            </li>
+
+            <!-- Bouton de filtre pour filtrer les restaurants par notes -->
+            <li class="nav-item">
+
+              <p>
+                <label for="amount">Notes:</label>
+                <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+              </p>
+               
+              <div id="slider-range"></div>
+
+              <!--<div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle filterDropdown" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
+                  Filtrer par notes
+                </button>
+                <ul class="dropdown-menu dropdown-menu-lg-end dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                  <li><a class="dropdown-item" href="#">1/2 étoiles</a></li>
+                  <li><a class="dropdown-item" href="#">2/3 étoiles</a></li>
+                  <li><a class="dropdown-item" href="#">3/4 étoiles</a></li>
+                  <li><a class="dropdown-item" href="#">4/5 étoiles</a></li>
+                </ul>
+              </div>-->
+            </li>
+          </ul>
+
+        </div>
+      </nav>
+
+    </header>
+
+    <div class="container-fluid bodyApp">
+        <div class="row" style="height: 100%;">
+            <div class="col-lg-8 restauMap">
+            <div id="map"></div>
+            </div>
+
+            <div id="allRestaurants" class="col-lg-4 restauCards">
+                <!-- restaurants -->
+            </div>
+        </div>
+    </div>
+
+  </body>
+
+  <!-- Footer -->
+<footer class="bg-dark text-center text-white">
+  <div class="container p-4">
+    <section class="mb-4">
+    </section>
+
+    <section class="mb-4">
+      <p>
+        Projet n°7 - Lancez votre propre site d'avis de restaurant
+      </p>
+      <p style="font-size: 12px;">
+        Vos données de localisation ne sont pas enregistrées par notre site
+      </p>
+    </section>
+    <!-- Section: Text -->
+
+  </div>
+
+
+  <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+    © 2020 Copyright:
+    <a class="text-white" href="#">Avis restaurant</a>
+  </div>
+
+
+</footer>
+
+  <!-- Scripts -->
+  <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> -->
+  <!-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script> -->
+  
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="./scripts/services.js"></script>
+
+  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-ZtycdNkeRoLzI4qk6PF4NjyeOofDjS4"></script>
+
+  <script type="text/javascript" src="./scripts/config.js"></script>
+  <script type="text/javascript" src="./scripts/classes/restaurantsJSON.js"></script>
+  <script type="text/javascript" src="./scripts/classes/map.js"></script>
+  <script type="text/javascript" src="./scripts/main.js"></script> 
+
+  
+  <script>
+
+    var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'))
+    var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+      return new bootstrap.Dropdown(dropdownToggleEl)
+    });
+
+  </script> 
+
+
+</html>

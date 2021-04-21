@@ -1,0 +1,21 @@
+{
+  "name": "demotaskrunner",
+  "version": "1.0.0",
+  "description": "Projet test pour la demonstration d'un task runner",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-autoprefixer": "^5.0.0",
+    "gulp-connect": "^5.5.0",
+    "gulp-csso": "^4.0.1",
+    "gulp-html": "^0.5.0",
+    "gulp-open": "^3.0.1",
+    "gulp-sass": "^4.0.1",
+    "gulp-terser": "^1.2.0"
+  }
+}

@@ -1,0 +1,132 @@
+/*@import "variables";
+.parent {
+    &-ctn {
+        width: 100%;
+        text-align: center;
+        color: $white;
+        text-align: center;
+    }
+}
+
+.parent-relatif {
+    width: 40%;
+    min-height: 400px;
+    background: $bluAzur;
+    position: relative;
+    margin: auto;
+}
+
+.enfant-absolue {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 50%;
+    width: 50%;
+    transform: translate(-50%, -50%);
+    background: $red;
+}
+.product {
+    &-ctn {
+        width: 6rem;
+        display: inline-block;
+        vertical-align: top;
+        margin: 2rem;
+        background: $orangered;
+        text-align: center;
+    }
+    &-label {
+        font-weight: bold;
+    }
+    &-img {
+        width: 50%;
+    }
+    &-price {
+        font-style: italic;
+        &:after {
+            content: "€";
+            margin-left: 6px;
+        }
+    }
+}
+
+@media screen and (max-width: $medium) {
+    .parent-relatif {
+        min-height: 200px;
+    }
+}
+
+@media screen and (max-width: $large) {
+    .parent-relatif {
+        min-height: 300px;
+    }
+}*/
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.addButton,
+.filterButton {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.bodyApp {
+    margin-top: 56px;
+    height: 100%;
+}
+
+#map {
+    height: 100%;
+    width: 100%;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.restauCards{
+    background-color: white;
+    border-left: 2px solid #343a40;
+    height: 100%;
+    padding-left: 0;
+	padding-right: 0;
+	overflow-y: auto;
+}
+
+.col-lg-8.restauMap {
+    padding: 0;
+}
+
+.cardOfRestau {
+    margin: 10px;
+}
+
+.cardBody {
+    padding: 10px;
+    margin-left: 40px;
+}
+
+.cardImg {
+    height: 100%;
+    width: 140%;
+}
+
+.modalImg {
+    width: 400px;
+    height: 300px;
+}
+
+.costumerAdvice {
+    margin: 20px;
+}
+
+
+table {
+	font-size: 1em;
+}
+
+.ui-draggable, .ui-droppable {
+	background-position: top;
+}
