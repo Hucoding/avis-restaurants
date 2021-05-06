@@ -5,4 +5,4 @@ let userMarker = [];
 
 let filteredRestauResults = [];
 
-let apiKey = "AIzaSyC-ZtycdNkeRoLzI4qk6PF4NjyeOofDjS4";
+let apiKey = "API_KEY";
