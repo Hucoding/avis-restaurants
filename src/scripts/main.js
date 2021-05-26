@@ -163,10 +163,19 @@ let global = {
                     console.log("call values OK");
                 }*/
 
-                let objectURL = URL.createObjectURL(values);
-                let image = document.createElement('img');
-                image.src = objectURL;
-                document.body.appendChild(image);
+
+                $(document).ready(function() {   //same as: $(function() { 
+
+                    var myImage = $('<img/>');
+
+                    myImage.attr('width', 300);
+                    myImage.attr('height', 300);
+                    myImage.attr('class', "groupMediaPhoto");
+                    myImage.attr('src', values);
+
+
+                    console.log(myImage);
+                });
 
                 //this.restauCardTemplate(element, index, values)
 
