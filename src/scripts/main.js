@@ -2,7 +2,8 @@ let global = {
     data: {
         title : "Avis restaurant",
         filteredRestauResults: [],
-        newMarkers: []
+        newMarkers: [],
+        map: null,
     },
     constante: {
         firstTitle: $("#title")
@@ -52,10 +53,13 @@ let global = {
 
                 let coordsUser = new google.maps.LatLng(positionLat, positionLng);
 
-                userMarker.push(coordsUser);
+                // userMarker.push(coordsUser);
 
                 const mapGoogle = new MyMap(positionLat, positionLng);
                 mapGoogle.initMap(positionLat, positionLng);
+                global.data.map = mapGoogle;
+
+                mapGoogle.addMarker(coordsUser);
             }, error => {
                 let positionLat = 48.856614;
                 let positionLng = 2.3522219;
@@ -63,10 +67,12 @@ let global = {
                 // if the user decline the location display the default marker in Paris 
                 let defaultUserCoords = new google.maps.LatLng(positionLat, positionLng);
 
-                userMarker.push(defaultUserCoords);
+                // userMarker.push(defaultUserCoords);
         
                 const mapGoogle = new MyMap(positionLat, positionLng);
                 mapGoogle.initMap(positionLat, positionLng);
+                global.data.map = mapGoogle;
+                mapGoogle.addMarker(coordsUser);
             });
         },
 
@@ -249,56 +255,59 @@ let global = {
 
 
 
-        updateMarkers(restaurant) {
+        updateMarkers(restaurants) {
 
-            if(global.data.newMarkers.length > 0) {
-                const mapGoogle = new MyMap(restaurant.lat, restaurant.lng);
-                mapGoogle.deleteMarkers(global.data.newMarkers);
+            if(global.data.map.markers.length > 0) {
+                global.data.map.clearMarkers();
             }
 
-            restaurant.map((elRestau, index) => {
-                let positionLat = elRestau.lat;
-                let positionLng = elRestau.lng;
+            restaurants.map((elRestau, index) => {
+                const positionLat = elRestau.lat;
+                const positionLng = elRestau.lng;
 
-                let newCoords = new google.maps.LatLng(positionLat, positionLng);
+                const newCoords = new google.maps.LatLng(positionLat, positionLng);
 
-                global.data.newMarkers.push(newCoords);
+                // global.data.newMarkers.push(newCoords);
 
-                let coordsFromArray = JSON.stringify(newCoords);
-                let parsedCoordsPosition = JSON.parse(coordsFromArray);
+                // let coordsFromArray = JSON.stringify(newCoords);
+                // let parsedCoordsPosition = JSON.parse(coordsFromArray);
 
-                console.log("latitude MARQUEUR " + parsedCoordsPosition.lat);
-                console.log("longitude MARQUEUR " + parsedCoordsPosition.lng);
+                // console.log("latitude MARQUEUR " + parsedCoordsPosition.lat);
+                // console.log("longitude MARQUEUR " + parsedCoordsPosition.lng);
 
-                let markerCoords = new google.maps.LatLng(
-                    parsedCoordsPosition.lat, 
-                    parsedCoordsPosition.lng
-                );
+                // let markerCoords = new google.maps.LatLng(
+                //     parsedCoordsPosition.lat, 
+                //     parsedCoordsPosition.lng
+                // );
 
-                let markers = new google.maps.Marker({
-                    map: map, 
-                    position: markerCoords
-                });
+                const marker = global.data.map.addMarker(newCoords);
+
+                // let markers = new google.maps.Marker({
+                //     map: map, 
+                //     position: markerCoords
+                // });
 
                 let restauIndex = index+1;
                 
-                markers.addListener("click", () => {
-                    $('#restaurantDetails'+restauIndex).modal('show'); 
+                marker.addListener("click", () => {
+                    $(`#restaurantDetails${restauIndex}`).modal('show'); 
                 });
 
-                console.log('NEW MARKERS => ' + global.data.newMarkers);
+                // console.log('NEW MARKERS => ' + global.data.newMarkers);
             })
 
-            if(allMarkers.length > 0) {
-                const mapGoogle = new MyMap(restaurant.lat, restaurant.lng);
-                mapGoogle.deleteMarkers(allMarkers);
-            }
+            // if(allMarkers.length > 0) {
+            //     const mapGoogle = new MyMap(restaurant.lat, restaurant.lng);
+            //     mapGoogle.deleteMarkers(allMarkers);
+            // }
 
         },
 
         updateListing(restaurants) {
 
             $('#allRestaurants').html('');
+
+            const self = this;
 
             restaurants.map((elRestau, index) => {
 
@@ -321,7 +330,9 @@ let global = {
 
                 let coordsRestau = new google.maps.LatLng(positionLat, positionLng);
 
-                allMarkers.push(coordsRestau);
+                global.data.map.addMarker(coordsRestau);
+
+                // allMarkers.push(coordsRestau);
                 
                 global.methods.filterRatings(restaurants, restaurantsJSON.displayAverage(elRestau));
                 restaurantsJSON.getAdviceFromRestaurantsJSON(index+1, elRestau.ratings);
@@ -331,10 +342,10 @@ let global = {
         /* display the restaurants cards near the user */
         initDisplayRestaurants() {
             services.getData("./assets/json/restaurants.json")
-            .then((data) => {
-                global.data.restaurants = data;
-                global.methods.updateListing(global.data.restaurants);         
-            });
+                .then((data) => {
+                    global.data.restaurants = data;
+                    global.methods.updateListing(global.data.restaurants);         
+                });
         }
 
     }

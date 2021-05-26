@@ -25,8 +25,8 @@ class RestaurantsJSON {
                 </div>
             `;
 
-            console.log("note attribuée : " + ratingsRestaurant[j].stars);
-            console.log("avis client : " + ratingsRestaurant[j].comment);
+            // console.log("note attribuée : " + ratingsRestaurant[j].stars);
+            // console.log("avis client : " + ratingsRestaurant[j].comment);
 
             $(`#costumerAdvice${numberOfRestau}`).append(adviceTemplate);
         }
