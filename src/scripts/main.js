@@ -176,6 +176,8 @@ let global = {
             console.log(element.name);
 
             global.methods.generateCardTemplate(element, restauIndex);
+            global.methods.generateModalCardTemplate(element, restauIndex);
+
 
             var panorama = new google.maps.StreetViewPanorama(document.getElementById('urlImg'+restauIndex), {
                 position: markerCoords, 
@@ -219,6 +221,7 @@ let global = {
                     return element.photo;
                 } else {
                    $("#urlImg"+restauIndex).append(values);
+                   $("#modalImg"+restauIndex).append(values);
                 }
 
             });
@@ -280,35 +283,11 @@ let global = {
             restauBodyInfo.append(restauBodyDetails);
             restauBodyInfo.append(restauName);
             restauBodyInfo.append(restauAddress);
-
         },
 
-        generateModalCardTemplate() {
+        generateModalCardTemplate(restaurant, index) {
+            console.log("modal is here");
             //si generateCardTemplate est générer alors on peut générer une modal pour une card
-            /*let modalTemplate = 
-            `<div id="restaurantDetails${index+1}" class="modal fade">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-            
-                        <!-- Header -->
-                        <div class="modal-header d-flex justify-content-center">
-                            <h1>${restaurant.restaurantName}</h1>
-                        </div>
-            
-                        <!-- Body -->
-                        <div class="modal-body d-flex justify-content-center">
-                            <img src=${restaurant.photo} alt="photo restaurant" class="modalImg" id="modalImg${index+1}">
-                        </div>
-
-                        <div class="costumerAdvice" id="costumerAdvice${index+1}"></div>
-                        
-                        <!-- Footer -->
-                        <div class="modal-footer modal-footer--mine">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
-                        </div>
-                    </div>
-                </div>
-            </div>`; */
 
             let modalContainer = $('<div>');
             modalContainer.attr("id", "restaurantDetails"+index);
@@ -333,8 +312,8 @@ let global = {
             modalImg.attr("class", "modalImg"); 
 
             let modalAdvice = $('<div>');
-            modalAdvice.attr("id", "modalImg"+index);
-            modalAdvice.attr("class", "modalImg"); 
+           // modalAdvice.attr("id", "modalImg"+index);
+           // modalAdvice.attr("class", "modalImg"); 
 
             let modalFooter = $('<div>');
             modalFooter.attr("class", "modal-footer modal-footer--mine");
@@ -344,11 +323,14 @@ let global = {
             closeModalButton.attr("class", "btn btn-default");
             closeModalButton.attr("data-dismiss", "modal");
 
+            $("#allRestaurants").append(modalContainer);
+
             modalContainer.append(modalDialog);
             modalDialog.append(modalContent);
             modalContent.append(modalHeader);
             modalHeader.append(modalTitle);
-            modalTitle.append(restaurant.name);
+            modalTitle.append("Nom");
+            modalContent.append(modalBody);
             modalBody.append(modalImg);
             modalContent.append(modalAdvice);
             modalContent.append(modalFooter);
