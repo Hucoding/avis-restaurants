@@ -1,5 +1,5 @@
 let map;
-let allMarkers = [];
+//let allMarkers = [];
 
 let userMarker = [];
 

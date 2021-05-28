@@ -4,8 +4,8 @@ class User {
         this.lng = lng; 
     }
 
-    addUserMarker() {
-        /** Add user markers on the map  **/
+    /* addUserMarker() {
+        // Add user markers on the map 
         userMarker.map((coords) => {
             let coordsFromArray = JSON.stringify(coords);
             let parsedCoordsPosition = JSON.parse(coordsFromArray);
@@ -26,5 +26,5 @@ class User {
                 }
             });
         });
-    }
+    } */
 }
