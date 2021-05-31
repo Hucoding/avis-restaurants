@@ -13,101 +13,51 @@ class MyMap {
             let initCoords = new google.maps.LatLng(latMap, lngMap);
             let initZoom = 15;
 
-            //console.log(initCoords);
+            this.map = new google.maps.Map(document.getElementById("map"), {
+                zoom: initZoom,
+                center: initCoords,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            });
 
-           //$(function initMap () {
-                this.map = new google.maps.Map(document.getElementById("map"), {
-                    zoom: initZoom,
-                    center: initCoords,
-                    mapTypeId: google.maps.MapTypeId.ROADMAP
+            //récupérer photo d'une position clickée
+            this.map.addListener("click", (mapsMouseEvent) => {
+
+                const marker = new google.maps.Marker({
+                    position: mapsMouseEvent.latLng,
+                    title: 'Nouveau restaurant',
+                    map: this.map,
+                    draggable: false
                 });
 
-                //récupérer photo d'une position clickée
-
-
-                this.map.addListener("click", (mapsMouseEvent) => {
-                    const marker = new google.maps.Marker({
-                        position: mapsMouseEvent.latLng,
-                        title: 'Nouveau restaurant',
-                        map: this.map,
-                        draggable: false
-                    });
-
-                    //image récupérer dans la console reste plus qu'a afficher la photo du restau proprement dans une modal
-                    var panorama = new google.maps.StreetViewPanorama(document.getElementById('#TEST'), {
-                        position: mapsMouseEvent.latLng,
-                        pov: {
-                            heading: 34,
-                            pitch: 10,
-                            zoom: 1
-                        }
-                    });
-
-                    //console.log(mapsMouseEvent.latLng);
-
-                    var latlng = panorama.getPosition();
-                    var pov = panorama.getPov();
-                    var url = "https://maps.googleapis.com/maps/api/streetview?size=500x400&location=" + encodeURIComponent(latlng.lat() + ", " + latlng.lng()) + "&fov=" + (180 / Math.pow(2, pov.zoom)) +  "&heading=" + encodeURI(pov.heading) + "&pitch=" + encodeURI(pov.pitch) + "&key=AIzaSyC-ZtycdNkeRoLzI4qk6PF4NjyeOofDjS4";
-                    //console.log("lat: " + latlng.lat() + "     " + "lng: " + latlng.lng());
-                    //console.log("img src: " + url);
-
-                    //return marker;
+                //image récupérer dans la console reste plus qu'a afficher la photo du restau proprement dans une modal
+                var panorama = new google.maps.StreetViewPanorama(document.getElementById('#TEST'), {
+                    position: mapsMouseEvent.latLng,
+                    pov: {
+                        heading: 34,
+                        pitch: 10,
+                        zoom: 1
+                    }
                 });
 
-                //console.log("ALL MARKERS TABLE : " + allMarkers);
+                var latlng = panorama.getPosition();
+                var pov = panorama.getPov();
+                var url = "https://maps.googleapis.com/maps/api/streetview?size=500x400&location=" + encodeURIComponent(latlng.lat() + ", " + latlng.lng()) + "&fov=" + (180 / Math.pow(2, pov.zoom)) +  "&heading=" + encodeURI(pov.heading) + "&pitch=" + encodeURI(pov.pitch) + "&key=AIzaSyC-ZtycdNkeRoLzI4qk6PF4NjyeOofDjS4";
+                console.log("lat: " + latlng.lat() + "     " + "lng: " + latlng.lng());
+                //console.log("img src: " + url);
 
-                // Add restaurants markers on the map
-                /* allMarkers.map((coords, index) => {
-                    let coordsFromArray = JSON.stringify(coords);
-                    let parsedCoordsPosition = JSON.parse(coordsFromArray);
+            });
 
-                    console.log("latitude MARQUEUR " + parsedCoordsPosition.lat);
-                    console.log("longitude MARQUEUR " + parsedCoordsPosition.lng);
-
-                    let markerCoords = new google.maps.LatLng(
-                        parsedCoordsPosition.lat, 
-                        parsedCoordsPosition.lng
-                    );
-
-                    let markers = new google.maps.Marker({
-                        map: this.map, 
-                        position: markerCoords
-                    });
-
-                    let restauIndex = index+1;
-        
-                    markers.addListener("click", () => {
-                        $('#restaurantDetails'+restauIndex).modal('show'); 
-                    }); 
-
-                }); */
-
-                /** Add user markers on the map  **/
-                /* userMarker.map((coords) => {
-                    let coordsFromArray = JSON.stringify(coords);
-                    let parsedCoordsPosition = JSON.parse(coordsFromArray);
-
-                    console.log("latitude MARQUEUR " + parsedCoordsPosition.lat);
-                    console.log("longitude MARQUEUR " + parsedCoordsPosition.lng);
-
-                    let markerUserCoords = new google.maps.LatLng(
-                        parsedCoordsPosition.lat, 
-                        parsedCoordsPosition.lng
-                    );
-
-                    let markers = new google.maps.Marker({
-                        map: this.map, 
-                        position: markerUserCoords,
-                        icon: {
-                            url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-                        }
-                    });
-                }); */
-
-               // à créer de facon factorisable <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-ZtycdNkeRoLzI4qk6PF4NjyeOofDjS4"></script>
-
-            //});
         } 
+    }
+
+    //ajout d'un nouveau restaurant sur la carte 
+    addRestaurant() {
+        
+    }
+
+    //ajout d'un avis sur un restaurant
+    addAdvice() {
+
     }
 
     addMarker(coords, type) {
@@ -130,7 +80,6 @@ class MyMap {
             this.markers.push(marker);
             return marker;
         }
-
         
     }
 
@@ -144,14 +93,12 @@ class MyMap {
     
     // Removes the markers from the map, but keeps them in the array.
     clearMarkers() {
-        //console.log('CLEAR MARKERS METHOD');
         this.markers.forEach(marker => {
             marker.setMap(null);
         });
     }
 
     deleteMarkers() {
-        //console.log('TEST DELETE MARKERS ');
         this.clearMarkers();
     }
 

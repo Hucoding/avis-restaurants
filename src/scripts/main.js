@@ -48,46 +48,12 @@ let global = {
             });
         },
 
-        //méthode lié a la géolocalisation si l'utilisateur accepte ou non la géoloc
-        /*getGeolocationUserPermission() {
-            navigator.geolocation.getCurrentPosition( function(position) {
-                let positionLat = position.coords.latitude;
-                let positionLng = position.coords.longitude;
-
-                let coordsUser = new google.maps.LatLng(positionLat, positionLng);
-
-                userMarker.push(coordsUser);
-
-                const mapGoogle = new MyMap(positionLat, positionLng);
-                mapGoogle.initMap(positionLat, positionLng);
-
-                //affichage des cards des restaurants
-                global.methods.initDisplayRestaurants();
-            }, error => {
-                let positionLat = 48.856614;
-                let positionLng = 2.3522219;
-                
-                // if the user decline the location display the default marker in Paris 
-                let defaultUserCoords = new google.maps.LatLng(positionLat, positionLng);
-
-                userMarker.push(defaultUserCoords);
-        
-                const mapGoogle = new MyMap(positionLat, positionLng);
-                mapGoogle.initMap(positionLat, positionLng);
-
-                //affichage des cards des restaurants
-                global.methods.initDisplayRestaurants();
-            });
-        },*/
-
         getGeolocationUserPermission() {
             navigator.geolocation.getCurrentPosition( function(position) {
                 let positionLat = position.coords.latitude;
                 let positionLng = position.coords.longitude;
 
                 let coordsUser = new google.maps.LatLng(positionLat, positionLng);
-
-                // userMarker.push(coordsUser);
 
                 const mapGoogle = new MyMap(positionLat, positionLng);
                 mapGoogle.initMap(positionLat, positionLng);
@@ -103,8 +69,6 @@ let global = {
                 
                 // if the user decline the location display the default marker in Paris 
                 let defaultUserCoords = new google.maps.LatLng(positionLat, positionLng);
-
-                // userMarker.push(defaultUserCoords);
         
                 const mapGoogle = new MyMap(positionLat, positionLng);
                 mapGoogle.initMap(positionLat, positionLng);
@@ -137,50 +101,20 @@ let global = {
                     return lower <= this && this <= upper;
                 };
 
-                //console.log("NOTE FILTRE => " + restaurantsJSON.displayAverage(elRestau));
-
                 if (restaurantsJSON.displayAverage(elRestau).between(lowerValue, upperValue)) {
-                    //console.log('lowerValue =>' + lowerValue);
-                    //console.log('upperValue =>' + upperValue);
-                    //problème avec le slide à régler mais sinon le filtre fonctionne parfaitement
-
                     global.data.filteredRestauResults.push(elRestau);
-
-                    //console.log("table filtered Restau Results : " + JSON.stringify(global.data.filteredRestauResults));
                 }
                 global.methods.updateListing(global.data.filteredRestauResults);
                 global.methods.updateMarkers(global.data.filteredRestauResults);
-
-                //console.log("global.data.filteredRestauResults LENGTH : " +  global.data.filteredRestauResults.length);
 
             })
 
         },
 
-        //images dans un tableau de promises 
-        //si il y'a pas d'image streetview 
-        //on charge une image Json
-        //sinon on charge placeholder
-
-
-        //récupération de la photo du restau via streetview
-        getUrlImg(element, index) {
-
-            let restauIndex = index+1;
-
-            let markerCoords = new google.maps.LatLng(
-                element.lat, 
-                element.lng
-            );
-            
-            console.log(element.name);
-
-            global.methods.generateCardTemplate(element, restauIndex);
-            global.methods.generateModalCardTemplate(element, restauIndex);
-
-
-            var panorama = new google.maps.StreetViewPanorama(document.getElementById('urlImg'+restauIndex), {
-                position: markerCoords, 
+        getImgs(restaurant, coords, id, index) {
+            var panorama = new google.maps.StreetViewPanorama(
+                document.getElementById(id+index), {
+                position: coords, 
                 pov: {
                     heading: 34,
                     pitch: 10,
@@ -202,33 +136,47 @@ let global = {
 
             const imgs = new Promise((resolve, reject) => {
                 
-                //console.log('The first promise has resolved');
                 let latlng = panorama.getPosition();
                 let pov = panorama.getPov();
-                let url = "https://maps.googleapis.com/maps/api/streetview?size=500x400&location=" + encodeURIComponent(latlng.lat() + ", " + latlng.lng()) + "&fov=" + (180 / Math.pow(2, pov.zoom)) +  "&heading=" + encodeURI(pov.heading) + "&pitch=" + encodeURI(pov.pitch) + "&key=" + apiKey;
+                let url = "https://maps.googleapis.com/maps/api/streetview?size=400x200&location=" + encodeURIComponent(latlng.lat() + ", " + latlng.lng()) + "&fov=" + (180 / Math.pow(2, pov.zoom)) +  "&heading=" + encodeURI(pov.heading) + "&pitch=" + encodeURI(pov.pitch) + "&key=" + apiKey;
                 resolve(url);
             
             });
 
-
             Promise.all([imgs]).then((values) => {
                 
                 if (values == null || values == "") {
-                    values = element.photo;
+                    values = restaurant.photo;
                     return values;
-                } else if (element.photo == null || element.photo == "") {
-                    element.photo = values;
-                    return element.photo;
+                } else if (restaurant.photo == null || restaurant.photo == "") {
+                    restaurant.photo = values;
+                    return restaurant.photo;
                 } else {
-                   $("#urlImg"+restauIndex).append(values);
-                   $("#modalImg"+restauIndex).append(values);
+                   $(id+index).append(values);
                 }
 
             });
 
         },
 
-        generateCardTemplate(restaurant, index) {
+        //récupération de la photo du restau via streetview
+        displayImgs(object, element, index) {
+            let restauIndex = index+1;
+
+            let markerCoords = new google.maps.LatLng(
+                element.lat, 
+                element.lng
+            );
+            
+            global.methods.generateCardTemplate(object, element, restauIndex);
+            global.methods.generateModalCardTemplate(object, element, restauIndex);
+            
+            global.methods.getImgs(element, markerCoords, "urlImg", restauIndex);
+            global.methods.getImgs(element, markerCoords, "modalImg", restauIndex);
+
+        },
+
+        generateCardTemplate(object, restaurant, index) {
 
             //on génère une card à partir du moment ou on tente de générer une image streetview
             //on passe l'index de la méthode => getUrlImg
@@ -252,7 +200,7 @@ let global = {
 
             let imgUrl = $('<div>');
             imgUrl.attr("id", "urlImg"+index);
-            imgUrl.attr("class", "col-md-6");
+            imgUrl.attr("class", "col-md-6 urlImg");
 
             let restauBodyInfo = $('<div>');
             restauBodyInfo.attr("class", "col-md-6");
@@ -262,7 +210,7 @@ let global = {
 
             let restauName = $('<p>');
             restauName.attr("class", "card-title");
-            restauName.append("Nom");
+            restauName.append(restaurant.restaurantName);
 
             let restauAddress = $('<p>');
             restauAddress.attr("class", "card-text");
@@ -283,11 +231,12 @@ let global = {
             restauBodyInfo.append(restauBodyDetails);
             restauBodyInfo.append(restauName);
             restauBodyInfo.append(restauAddress);
+            restauBodyInfo.append(restauAverage);
+            restauAverage.append(object.displayAverage(restaurant));
+
         },
 
-        generateModalCardTemplate(restaurant, index) {
-            console.log("modal is here");
-            //si generateCardTemplate est générer alors on peut générer une modal pour une card
+        generateModalCardTemplate(object, restaurant, index) {
 
             let modalContainer = $('<div>');
             modalContainer.attr("id", "restaurantDetails"+index);
@@ -309,11 +258,11 @@ let global = {
 
             let modalImg = $('<div>');
             modalImg.attr("id", "modalImg"+index);
-            modalImg.attr("class", "modalImg"); 
+            modalImg.attr("class", "col-md-8 modalImg"); 
 
             let modalAdvice = $('<div>');
-           // modalAdvice.attr("id", "modalImg"+index);
-           // modalAdvice.attr("class", "modalImg"); 
+            modalAdvice.attr("id", "costumerAdvice"+index);
+            modalAdvice.attr("class", "costumerAdvice"); 
 
             let modalFooter = $('<div>');
             modalFooter.attr("class", "modal-footer modal-footer--mine");
@@ -329,68 +278,18 @@ let global = {
             modalDialog.append(modalContent);
             modalContent.append(modalHeader);
             modalHeader.append(modalTitle);
-            modalTitle.append("Nom");
+            modalTitle.append(restaurant.restaurantName);
             modalContent.append(modalBody);
             modalBody.append(modalImg);
             modalContent.append(modalAdvice);
+            modalAdvice.append(object.getAdviceFromRestaurantsJSON(index, restaurant.ratings));
             modalContent.append(modalFooter);
             modalFooter.append(closeModalButton);
+            closeModalButton.append("Fermer");
 
         },
 
-        /*restauCardTemplate(restaurant, index) {
-
-
-            const restaurantsJSON = new RestaurantsJSON(
-                restaurant.name, 
-                restaurant.photo, 
-                restaurant.address, 
-                restaurant.lat, 
-                restaurant.lng, 
-                restaurant.ratings, 
-                restaurant.comment
-            );
-
-            /* template of restaurant cards at the right of map  */
-            // <img src=${urlImg} alt="photo restaurant" class="cardImg">
-
-
-            /*let modalTemplate = 
-            `<div id="restaurantDetails${index+1}" class="modal fade">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-            
-                        <!-- Header -->
-                        <div class="modal-header d-flex justify-content-center">
-                            <h1>${restaurant.restaurantName}</h1>
-                        </div>
-            
-                        <!-- Body -->
-                        <div class="modal-body d-flex justify-content-center">
-                            <img src=${restaurant.photo} alt="photo restaurant" class="modalImg" id="modalImg${index+1}">
-                        </div>
-
-                        <div class="costumerAdvice" id="costumerAdvice${index+1}"></div>
-                        
-                        <!-- Footer -->
-                        <div class="modal-footer modal-footer--mine">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>`;
-
-            
-            $("#allRestaurants").append(modalTemplate);
-        },*/
-
-
         updateMarkers(restaurants) {
-
-            /*if(global.data.newMarkers.length > 0) {
-                const mapGoogle = new MyMap(restaurant.lat, restaurant.lng);
-                mapGoogle.deleteMarkers(global.data.newMarkers);
-            }*/
 
             if(global.data.map.markers.length > 0) {
                 global.data.map.clearMarkers();
@@ -402,43 +301,15 @@ let global = {
 
                 const newCoords = new google.maps.LatLng(positionLat, positionLng);
 
-                //global.data.newMarkers.push(newCoords);
-
-                //let coordsFromArray = JSON.stringify(newCoords);
-                //let parsedCoordsPosition = JSON.parse(coordsFromArray);
-
-                //console.log("latitude MARQUEUR " + parsedCoordsPosition.lat);
-                //console.log("longitude MARQUEUR " + parsedCoordsPosition.lng);
-
-                /*let markerCoords = new google.maps.LatLng(
-                    parsedCoordsPosition.lat, 
-                    parsedCoordsPosition.lng
-                );
-
-                let markers = new google.maps.Marker({
-                    map: map, 
-                    position: markerCoords
-                });*/
-
                 const marker = global.data.map.addMarker(newCoords, false);
 
                 let restauIndex = index+1;
-                
-                /*markers.addListener("click", () => {
-                    $('#restaurantDetails'+restauIndex).modal('show'); 
-                });*/
 
                 marker.addListener("click", () => {
                     $(`#restaurantDetails${restauIndex}`).modal('show'); 
                 });
 
-                //console.log('NEW MARKERS => ' + global.data.newMarkers);
             })
-
-            /* if(allMarkers.length > 0) {
-                const mapGoogle = new MyMap(restaurant.lat, restaurant.lng);
-                mapGoogle.deleteMarkers(allMarkers);
-            } */
 
         },
 
@@ -451,7 +322,7 @@ let global = {
             restaurants.map((elRestau, index) => {
 
                 const restaurantsJSON = new RestaurantsJSON(
-                    elRestau.name, 
+                    elRestau.restaurantName, 
                     elRestau.photo, 
                     elRestau.address, 
                     elRestau.lat, 
@@ -460,31 +331,20 @@ let global = {
                     elRestau.comment
                 );
                 
-                //global.methods.restauCardTemplate(elRestau, index);
+                global.methods.displayImgs(restaurantsJSON, elRestau, index);
 
-                global.methods.getUrlImg(elRestau, index);
-
-                /* add restaurants markers */
                 let positionLat = elRestau.lat;
                 let positionLng = elRestau.lng;
 
                 let coordsRestau = new google.maps.LatLng(positionLat, positionLng);
 
-                //allMarkers.push(coordsRestau);
                 global.data.map.addMarker(coordsRestau, false);
-                
                 global.methods.filterRatings(restaurants, restaurantsJSON.displayAverage(elRestau));
-                restaurantsJSON.getAdviceFromRestaurantsJSON(index+1, elRestau.ratings);
             })
         },
 
-        /* display the restaurants cards near the user */
         initDisplayRestaurants() {
             services.getData("./assets/json/restaurants.json")
-            /* .then((data) => {
-                global.data.restaurants = data;
-                global.methods.updateListing(global.data.restaurants);         
-            }); */
             .then((data) => {
                 global.data.restaurants = data;
                 global.methods.updateListing(global.data.restaurants);         
@@ -498,32 +358,3 @@ const init = (() => {
     global.methods.getGeolocationUserPermission();
 })();
 
-
-
-
-//global.methods.generateRestauImg(element, values, restauIndex);
-//return values;
-/*generateRestauImg(restaurant, photo, index) {
-    let restaurantCardsTemplate =  
-    `<button id="restauCard${index+1}"" type="button" data-toggle="modal" data-target="#restaurantDetails${index+1}">
-        <div class="card mb-3 cardOfRestau" style="max-width: 540px;">
-            <div class="row g-0">
-                <div id="urlImg${index+1}" class="col-md-4">
-                </div>
-                <div class="col-md-8">
-                <div class="card-body cardBody">
-                    <h5 class="card-title">${restaurant.restaurantName}</h5>
-                    <p class="card-text">${restaurant.address}</p>
-                    <p class="card-text"><small class="text-muted"></small></p>
-                </div>
-                </div>
-            </div>
-        </div>
-    </button>`;
-
-    //${restaurantsJSON.displayAverage(restaurant)}
-
-
-
-    //$("#allRestaurants").append();
-},*/
