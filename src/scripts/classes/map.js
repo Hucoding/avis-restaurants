@@ -4,6 +4,7 @@ class MyMap {
         this.latMap = latMap; 
         this.lngMap = lngMap; 
         this.markers = [];
+        this.newRestaurants = [];
     }
 
     initMap(latMap, lngMap) {
@@ -29,30 +30,27 @@ class MyMap {
                     draggable: false
                 });
 
-                //image récupérer dans la console reste plus qu'a afficher la photo du restau proprement dans une modal
-                var panorama = new google.maps.StreetViewPanorama(document.getElementById('#TEST'), {
-                    position: mapsMouseEvent.latLng,
-                    pov: {
-                        heading: 34,
-                        pitch: 10,
-                        zoom: 1
-                    }
-                });
-
-                var latlng = panorama.getPosition();
-                var pov = panorama.getPov();
-                var url = "https://maps.googleapis.com/maps/api/streetview?size=500x400&location=" + encodeURIComponent(latlng.lat() + ", " + latlng.lng()) + "&fov=" + (180 / Math.pow(2, pov.zoom)) +  "&heading=" + encodeURI(pov.heading) + "&pitch=" + encodeURI(pov.pitch) + "&key=AIzaSyC-ZtycdNkeRoLzI4qk6PF4NjyeOofDjS4";
-                console.log("lat: " + latlng.lat() + "     " + "lng: " + latlng.lng());
-                //console.log("img src: " + url);
+                this.addRestaurant(mapsMouseEvent.latLng);
 
             });
 
         } 
     }
 
+    //récupération de la photo du restau via cette méthode :
+    getImgForNewRestaurant(coords, id, index) {
+
+    }
+
+    // création d'une modal pour un nouveau restaurant
+    generateModalTemplateForNewRestaurant(object, restaurant, index) {
+
+    }
+
     //ajout d'un nouveau restaurant sur la carte 
-    addRestaurant() {
-        
+    addRestaurant(coords) {
+        //créer des index en auto pour générer des modals différents pour chaque marqueur
+        console.log("coords " + coords);
     }
 
     //ajout d'un avis sur un restaurant

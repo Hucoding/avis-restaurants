@@ -4,4 +4,5 @@ class Place {
         this.lng = lng;
     }
 
+
 }

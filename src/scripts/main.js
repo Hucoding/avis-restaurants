@@ -10,6 +10,7 @@ let global = {
     },
     methods: {
 
+        //insertion d'une balise script pour initialiser la map de GOOGLE
         loadScript() {
             let mapScript = document.createElement('script');
             mapScript.type = 'text/javascript';
@@ -17,7 +18,7 @@ let global = {
             document.body.append(mapScript);   
         },                      
 
-        //méthode pour filtrer les restaurant avec le range
+        //Filtrage des restaurants par leur moyenne de notes
         filterRatings(restaurants, ratingsAverage) {
             $(document).ready(function() {
                 $("#slider-range").slider({
@@ -48,6 +49,7 @@ let global = {
             });
         },
 
+        //récupération de la validation de la géolocalisation par l'utilisateur
         getGeolocationUserPermission() {
             navigator.geolocation.getCurrentPosition( function(position) {
                 let positionLat = position.coords.latitude;
@@ -111,6 +113,7 @@ let global = {
 
         },
 
+       //récupération des photos des restaurant via GOOGLE STREETVIEW
         getImgs(restaurant, coords, id, index) {
             var panorama = new google.maps.StreetViewPanorama(
                 document.getElementById(id+index), {
@@ -138,7 +141,7 @@ let global = {
                 
                 let latlng = panorama.getPosition();
                 let pov = panorama.getPov();
-                let url = "https://maps.googleapis.com/maps/api/streetview?size=400x200&location=" + encodeURIComponent(latlng.lat() + ", " + latlng.lng()) + "&fov=" + (180 / Math.pow(2, pov.zoom)) +  "&heading=" + encodeURI(pov.heading) + "&pitch=" + encodeURI(pov.pitch) + "&key=" + apiKey;
+                let url = "https://maps.googleapis.com/maps/api/streetview?size=500x400&location=" + latlng.lat() + ", " + latlng.lng() + "&fov=" + (180 / Math.pow(2, pov.zoom)) +  "&heading=" + pov.heading + "&pitch=" + pov.pitch + "&key=" + apiKey;
                 resolve(url);
             
             });
@@ -159,7 +162,7 @@ let global = {
 
         },
 
-        //récupération de la photo du restau via streetview
+        //affichage des images récupérer via GOOGLE STREETVIEW dans leur card respective
         displayImgs(object, element, index) {
             let restauIndex = index+1;
 
@@ -176,11 +179,8 @@ let global = {
 
         },
 
+        // génération d'une card d'un restaurant dans #allRestaurants
         generateCardTemplate(object, restaurant, index) {
-
-            //on génère une card à partir du moment ou on tente de générer une image streetview
-            //on passe l'index de la méthode => getUrlImg
-            //ici on insère le code permetant de générer une card
 
             let buttonCard = $('<button>');
             buttonCard.attr("id", "restauCard"+index);
@@ -236,6 +236,7 @@ let global = {
 
         },
 
+        // génération d'un modal pour une card d'un restaurant
         generateModalCardTemplate(object, restaurant, index) {
 
             let modalContainer = $('<div>');
@@ -258,7 +259,7 @@ let global = {
 
             let modalImg = $('<div>');
             modalImg.attr("id", "modalImg"+index);
-            modalImg.attr("class", "col-md-8 modalImg"); 
+            modalImg.attr("class", "col-md-12 modalImg"); 
 
             let modalAdvice = $('<div>');
             modalAdvice.attr("id", "costumerAdvice"+index);
@@ -289,6 +290,7 @@ let global = {
 
         },
 
+        //mise à jours des markers en fonction du filtre choisis par l'utilisateur
         updateMarkers(restaurants) {
 
             if(global.data.map.markers.length > 0) {
@@ -313,11 +315,10 @@ let global = {
 
         },
 
+        //mise à jours du listing des restaurants au niveau de #allRestaurants en fonction du filtre choisis par l'utilisateur
         updateListing(restaurants) {
 
             $('#allRestaurants').html('');
-
-            const self = this;
 
             restaurants.map((elRestau, index) => {
 
@@ -343,6 +344,7 @@ let global = {
             })
         },
 
+        //initialisation globale des données json des restaurants de base
         initDisplayRestaurants() {
             services.getData("./assets/json/restaurants.json")
             .then((data) => {
@@ -354,6 +356,7 @@ let global = {
     }
 }
 
+//initialisation globale du projet
 const init = (() => {
     global.methods.getGeolocationUserPermission();
 })();
