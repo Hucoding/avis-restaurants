@@ -118,6 +118,11 @@ body {
     height: 300px;
 }
 
+.modalNewRestauImg {
+    width: 400px;
+    height: 300px;
+}
+
 .costumerAdvice {
     margin: 20px;
 }
@@ -129,4 +134,8 @@ table {
 
 .ui-draggable, .ui-droppable {
 	background-position: top;
+}
+
+.restauCard {
+    width: 100%;
 }

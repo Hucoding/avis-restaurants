@@ -172,7 +172,7 @@ let global = {
             );
             
             global.methods.generateCardTemplate(object, element, restauIndex);
-            global.methods.generateModalCardTemplate(object, element, restauIndex);
+            global.methods.generateModalCardTemplate("restaurantDetails", object, element, restauIndex);
             
             global.methods.getImgs(element, markerCoords, "urlImg", restauIndex);
             global.methods.getImgs(element, markerCoords, "modalImg", restauIndex);
@@ -237,10 +237,10 @@ let global = {
         },
 
         // génération d'un modal pour une card d'un restaurant
-        generateModalCardTemplate(object, restaurant, index) {
+        generateModalCardTemplate(id, object, restaurant, index) {
 
             let modalContainer = $('<div>');
-            modalContainer.attr("id", "restaurantDetails"+index);
+            modalContainer.attr("id", id+index);
             modalContainer.attr("class", "modal fade");
 
             let modalDialog = $('<div>');
@@ -265,6 +265,10 @@ let global = {
             modalAdvice.attr("id", "costumerAdvice"+index);
             modalAdvice.attr("class", "costumerAdvice"); 
 
+            let modalFormAdvice = $('<div>');
+            modalFormAdvice.attr("id", "costumerAdviceForm"+index);
+            modalFormAdvice.attr("class", "costumerAdviceForm"); 
+
             let modalFooter = $('<div>');
             modalFooter.attr("class", "modal-footer modal-footer--mine");
 
@@ -275,6 +279,33 @@ let global = {
 
             $("#allRestaurants").append(modalContainer);
 
+
+            // template test à décomposer
+            let test = 
+            `<form>
+                <h3 class="col-md-12">Publiez votre avis</h3>
+                <div class="form-group col-md-12">
+                    <label for="exampleFormControlSelect1">Ajouter une note :</label>
+                    <select class="form-control" id="exampleFormControlSelect1">
+                    <option>1</option>
+                    <option>1.5</option>
+                    <option>2</option>
+                    <option>2.5</option>
+                    <option>3</option>
+                    <option>3.5</option>
+                    <option>4</option>
+                    <option>4.5</option>
+                    <option>5</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-12">
+                    <label for="formGroupExampleInput">Votre avis :</label>
+                    <input type="text" class="form-control" id="formGroupExampleInput" placeholder="Votre avis">
+                </div>
+                <button type="button" class="btn btn-success btn-lg btn-block" style="border-radius: 0;">Valider</button>
+            </form>
+            `;
+
             modalContainer.append(modalDialog);
             modalDialog.append(modalContent);
             modalContent.append(modalHeader);
@@ -283,6 +314,8 @@ let global = {
             modalContent.append(modalBody);
             modalBody.append(modalImg);
             modalContent.append(modalAdvice);
+            modalContent.append(modalFormAdvice);
+            modalFormAdvice.append(test);
             modalAdvice.append(object.getAdviceFromRestaurantsJSON(index, restaurant.ratings));
             modalContent.append(modalFooter);
             modalFooter.append(closeModalButton);
@@ -311,7 +344,7 @@ let global = {
                     $(`#restaurantDetails${restauIndex}`).modal('show'); 
                 });
 
-            })
+            })    
 
         },
 
