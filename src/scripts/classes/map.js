@@ -4,8 +4,9 @@ class MyMap {
         this.latMap = latMap; 
         this.lngMap = lngMap; 
         this.markers = [];
-        this.allNewDatas = [];
+        this.imgNewRestau = [];
         this.newRestaurants = [];
+        this.newDatas = [];
     }
 
     initMap(latMap, lngMap) {
@@ -21,6 +22,7 @@ class MyMap {
                 mapTypeId: google.maps.MapTypeId.ROADMAP
             });
 
+
             //récupérer photo d'une position clickée
             this.map.addListener("click", (mapsMouseEvent) => {
 
@@ -32,14 +34,34 @@ class MyMap {
                 });
                 let index;
                 this.addRestaurant(marker, index, mapsMouseEvent.latLng);
+                this.getAddress(mapsMouseEvent.latLng)
 
             });
 
         } 
     }
 
+    // récupérer l'adresse du restau par le click
+    getAddress(latLng) {
+        let geocoder = new google.maps.Geocoder();
+        geocoder.geocode({'latLng': latLng},
+        function(results, status) {
+            if(status == google.maps.GeocoderStatus.OK) {
+                if(results[0]) {
+                    document.getElementById("adressField1").value = results[0].formatted_address;
+                } else {
+                    document.getElementById("adressField1").value = "Aucuns résultats";
+                }
+            } else {
+                document.getElementById("adressField1").value = status;
+            }
+        }); 
+    }
+
     //récupération de la photo du restau
     getImgForNewRestaurant(coords, id, index) {
+
+        console.log("getImgForNewRestaurant" + coords);
 
         var panorama = new google.maps.StreetViewPanorama(
             document.getElementById(id+index), {
@@ -75,13 +97,13 @@ class MyMap {
 
         Promise.all([imgs]).then((values) => {
             $(id+index).append(values);
-            sessionStorage.setItem("img_restau", JSON.stringify(values));
+            this.imgNewRestau.push(values);
         });
 
     }
 
     // création d'une modal pour un nouveau restaurant
-    generateModalTemplateForNewRestaurant(index) {
+    generateModalTemplateForNewRestaurant(coords, index) {
         let modalContainer = $('<div>');
         modalContainer.attr("id", "newRestaurant"+index);
         modalContainer.attr("class", "modal fade");
@@ -168,16 +190,17 @@ class MyMap {
         modalFooter.append(closeModalButton);
         closeModalButton.append("Ajouter");
 
-        $("#newRestaurant"+index).modal('show'); 
-
+        $("#newRestaurant"+index).modal('show');
+        
         $("#saveRestau"+index).click(() => {
             let newRestaurant = true
             let nameNewRestaurant = $("#nameField"+index).val();
             let adressNewRestaurant = $("#adressField"+index).val();
 
-            if(newRestaurant == true) {
-                this.saveNewDatas(newRestaurant, nameNewRestaurant, adressNewRestaurant);
-            }
+            $(addNameInput).val('');
+
+            this.verifyNumberCharacters(index, coords, nameNewRestaurant, adressNewRestaurant, newRestaurant);
+
         });
         
     }
@@ -197,7 +220,7 @@ class MyMap {
             if($("#newRestaurant" + index).length == 0) {
                 index = i+1;
 
-                this.generateModalTemplateForNewRestaurant(index);  
+                this.generateModalTemplateForNewRestaurant(coords, index);  
                 this.getImgForNewRestaurant(coords, "modalNewRestauImg", index);
 
                 $('#map').each(function(i) {
@@ -213,34 +236,47 @@ class MyMap {
 
     }
 
-    saveNewDatas(type, value1, value2) {
-        // type = newRestaurant = true
-        // type = newAdvice = false 
-        if (type == true) {
-            console.log("save restaurant");
-            let nameNewRestau = sessionStorage.setItem("name_restau", JSON.stringify(value1));
-            let adressNewRestau = sessionStorage.setItem("adress_restau", JSON.stringify(value2));
+    saveRestaurant(index, coords, checkValue, restaurantName, adress) {
 
-            this.newRestaurants.push(JSON.stringify(sessionStorage.getItem("img_restau")));
-            this.newRestaurants.push(JSON.stringify(sessionStorage.getItem("name_restau")));
-            this.newRestaurants.push(JSON.stringify(sessionStorage.getItem("adress_restau")));
+        if (checkValue == true) {
+            const restaurantsJSON = new RestaurantsJSON(
+                restaurantName,
+                this.imgNewRestau[0][0],
+                adress,
+                coords.lat(),
+                coords.lng(),
+                []
+            );
 
-            this.allNewDatas.push(this.newRestaurants);
-            console.log(this.allNewDatas);
-            
+            console.log(restaurantsJSON);
+            console.log(global.data.restaurants);
+
+            global.data.restaurants.push(restaurantsJSON);
+            this.newDatas.push(restaurantsJSON);
+
+            let indexOfNewRestaurant = global.data.restaurants.length;
+
+            this.newDatas.map((elRestau) => {
+                global.methods.displayImgs(restaurantsJSON, elRestau, indexOfNewRestaurant);
+                //$('#newRestaurant'+index).remove(); supprimer la div d'ajout et affecter le nouveau modal
+            })
+
         } else {
-            console.log("save advice");
+            console.log("don't save datas");
+            //retirer le marqueur ET ne pas faire d'enregistrement des valeurs
         }
-  
     }
 
-    //vérification du nombre de caractères
-    verifyNumberCharacters(id) {
-        if (document.getElementById(id).value.length < 3 ) {
+
+    verifyNumberCharacters(index, coords, field1, field2, checkValue) {
+        if (field1.length < 3 || field2.length < 3) {
             alert("Attention : Votre pseudo doit contenir 3 lettres au minimum !");
-            return false;
+            checkValue = false;
+            this.saveRestaurant(index, coords, checkValue, field1, field2);
         } else {
-            return true;
+            checkValue = true;
+            this.saveRestaurant(index, coords, checkValue, field1, field2);
+
         }
     }
 

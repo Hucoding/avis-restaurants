@@ -15,7 +15,7 @@ let global = {
             let mapScript = document.createElement('script');
             mapScript.type = 'text/javascript';
             mapScript.src = "https://maps.googleapis.com/maps/api/js?key=" + apiKey + "";
-            document.body.append(mapScript);   
+            document.body.append(mapScript);  
         },                      
 
         //Filtrage des restaurants par leur moyenne de notes
@@ -137,6 +137,10 @@ let global = {
                 clickToGo: false
             });
 
+            $("#restaurantDetails"+index).on('shown.bs.modal', function () {
+                google.maps.event.trigger(panorama, "resize");
+            });
+
             const imgs = new Promise((resolve, reject) => {
                 
                 let latlng = panorama.getPosition();
@@ -173,7 +177,7 @@ let global = {
             
             global.methods.generateCardTemplate(object, element, restauIndex);
             global.methods.generateModalCardTemplate("restaurantDetails", object, element, restauIndex);
-            
+
             global.methods.getImgs(element, markerCoords, "urlImg", restauIndex);
             global.methods.getImgs(element, markerCoords, "modalImg", restauIndex);
 
@@ -236,8 +240,10 @@ let global = {
 
         },
 
-        // génération d'un modal pour une card d'un restaurant
         generateModalCardTemplate(id, object, restaurant, index) {
+
+            let ratings = [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
+            let option = '';
 
             let modalContainer = $('<div>');
             modalContainer.attr("id", id+index);
@@ -279,32 +285,40 @@ let global = {
 
             $("#allRestaurants").append(modalContainer);
 
+            let formAdvice = $('<form>');
 
-            // template test à décomposer
-            let test = 
-            `<form>
-                <h3 class="col-md-12">Publiez votre avis</h3>
-                <div class="form-group col-md-12">
-                    <label for="exampleFormControlSelect1">Ajouter une note :</label>
-                    <select class="form-control" id="exampleFormControlSelect1">
-                    <option>1</option>
-                    <option>1.5</option>
-                    <option>2</option>
-                    <option>2.5</option>
-                    <option>3</option>
-                    <option>3.5</option>
-                    <option>4</option>
-                    <option>4.5</option>
-                    <option>5</option>
-                    </select>
-                </div>
-                <div class="form-group col-md-12">
-                    <label for="formGroupExampleInput">Votre avis :</label>
-                    <input type="text" class="form-control" id="formGroupExampleInput" placeholder="Votre avis">
-                </div>
-                <button type="button" class="btn btn-success btn-lg btn-block" style="border-radius: 0;">Valider</button>
-            </form>
-            `;
+            let formAdviceTitle = $('<h3>');
+            formAdviceTitle.attr("class", "col-md-12");
+
+            let formSelectBody = $('<div>');
+            formSelectBody.attr("class", "form-group col-md-12");
+
+            let formSelectLabel= $('<label>');
+            formSelectLabel.attr("for", "exampleFormControlSelect"+index);
+
+            let selectRatings = $('<select>');
+            selectRatings.attr("class", "form-control");
+            selectRatings.attr("id", "ratingType"+index);
+
+            let optionRating = $('<option>');
+
+             let formAdviceBody = $('<div>');
+            formAdviceBody.attr("class", "col-md-12");
+
+            let formAdviceLabel = $('<label>');
+            formAdviceLabel.attr("for", "formGroupExampleInput");
+
+            let formAdviceTextarea = $('<textarea>');
+            formAdviceTextarea.attr("type", "text");
+            formAdviceTextarea.attr("class", "form-control");
+            formAdviceTextarea.attr("id", "comment"+index);
+            formAdviceTextarea.attr("placeholder", "");
+
+            let postAdviceButton = $('<button>');
+            postAdviceButton.attr("type", "button");
+            postAdviceButton.attr("id", "postAdviceButton"+index)
+            postAdviceButton.attr("class", "btn btn-success btn-lg btn-block");
+            postAdviceButton.attr("style", "border-radius: 0; margin-top: 10px;"); 
 
             modalContainer.append(modalDialog);
             modalDialog.append(modalContent);
@@ -315,12 +329,76 @@ let global = {
             modalBody.append(modalImg);
             modalContent.append(modalAdvice);
             modalContent.append(modalFormAdvice);
-            modalFormAdvice.append(test);
+            
+            modalFormAdvice.append(formAdvice);
+            formAdvice.append(formAdviceTitle);
+            formAdviceTitle.append("Publiez votre avis :");
+            formAdvice.append(formSelectBody);
+            formSelectBody.append(formSelectLabel);
+            formSelectLabel.append("Ajoutez une note :");
+            formSelectBody.append(selectRatings);
+            selectRatings.append(optionRating);
+
+            for (var i=0; i < ratings.length; i++){
+                option += '<option value="'+ ratings[i] + '">' + ratings[i] + '</option>';
+            }
+            $('#ratingType' + index).append(option);
+
+            formAdvice.append(formAdviceBody);
+            formAdviceBody.append(formAdviceLabel);
+            formAdviceLabel.append("Ajoutez votre commentaire :");
+            formAdviceBody.append(formAdviceTextarea);
+            formAdvice.append(postAdviceButton);
+            postAdviceButton.append("Valider");
+
             modalAdvice.append(object.getAdviceFromRestaurantsJSON(index, restaurant.ratings));
             modalContent.append(modalFooter);
             modalFooter.append(closeModalButton);
             closeModalButton.append("Fermer");
 
+            $("#postAdviceButton"+index).click(() => {
+                let newAdvice = true;
+                let rating = $("#ratingType"+index).val();
+                let comment = $("#comment"+index).val();
+                
+                console.log("rating => " + rating);
+                console.log("comment => " + comment);
+                global.methods.verifyNumberCharactersAdvice(rating, comment, newAdvice);
+    
+            });
+        },
+
+        verifyNumberCharactersAdvice(field1, field2, checkValue) {
+            console.log("field1 => " + field1);
+            console.log("field2 => " + field2);
+            console.log("checkValue => " + checkValue);
+            if (field2.length < 3) {
+                alert("Attention : Votre pseudo doit contenir 3 lettres au minimum !");
+                checkValue = false;
+                global.methods.saveComment(checkValue, field1, field2);
+            } else {
+                checkValue = true;
+                global.methods.saveComment(checkValue, field1, field2);
+            }
+        },
+
+        saveComment(checkValue, rating, comment) {
+            if (checkValue == true) {
+
+                console.log("saveComment rating => " + rating);
+                console.log("saveComment comment => " + comment);
+                
+                //voir pourquoi l'objet n'est pas identifié 
+                const advice = new Advice(
+                    rating,
+                    comment
+                ); 
+
+                console.log(advice);
+    
+            } else {
+                console.log("ne pas enregistrer se commentaire");
+            }
         },
 
         //mise à jours des markers en fonction du filtre choisis par l'utilisateur

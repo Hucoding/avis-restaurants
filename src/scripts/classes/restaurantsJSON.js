@@ -1,32 +1,45 @@
 class RestaurantsJSON {
-    constructor(name, photo, address, lat, lng, stars, comment){
-        this.name = name; 
+    constructor(restaurantName, photo, address, lat, lng, ratings){
+        this.restaurantName = restaurantName; 
         this.photo = photo; 
         this.address = address;
         this.lat = lat;
         this.lng = lng;
-        this.stars = stars;
-        this.comment = comment;
+        this.ratings = ratings;
     }
-
-    //Getters
 
     //on récupére les avis des restaurants ainsique les notes des utilisateurs
     getAdviceFromRestaurantsJSON(numberOfRestau, ratingsRestaurant) {
 
-        for(let j = 0; j < ratingsRestaurant.length; j++) {      
+        if(ratingsRestaurant.length == 0) {
 
-            let adviceTemplate = `
-                <div id="advice${j+1}" class="media text-muted pt-3">
-                    <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
-                    <strong class="d-block text-gray-dark">Note attribuée : ${ratingsRestaurant[j].stars}</strong>
-                    ${ratingsRestaurant[j].comment}
-                    </p>
-                </div>
-            `;
+            $(`#costumerAdvice${numberOfRestau}`).html('');
 
+            let adviceTemplate = 
+            `<p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                <strong class="d-block text-gray-dark">
+                    il n'y a pas de commentaires pour cet établissement
+                </strong>
+            </p>`;
 
             $(`#costumerAdvice${numberOfRestau}`).append(adviceTemplate);
+
+        } else {
+
+            for(let j = 0; j < ratingsRestaurant.length; j++) {  
+            
+                let adviceTemplate = `
+                    <div id="advice${j+1}" class="media text-muted pt-3">
+                        <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                        <strong class="d-block text-gray-dark">Note attribuée : ${ratingsRestaurant[j].stars}</strong>
+                        ${ratingsRestaurant[j].comment}
+                        </p>
+                    </div>
+                `;
+    
+    
+                $(`#costumerAdvice${numberOfRestau}`).append(adviceTemplate);
+            }
         }
     }
 
