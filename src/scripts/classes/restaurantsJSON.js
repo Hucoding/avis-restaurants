@@ -1,11 +1,13 @@
 class RestaurantsJSON {
-    constructor(restaurantName, photo, address, lat, lng, ratings){
+    constructor(restaurantName, photo, address, lat, lng, ratings, comment, stars) {
         this.restaurantName = restaurantName; 
         this.photo = photo; 
         this.address = address;
         this.lat = lat;
         this.lng = lng;
         this.ratings = ratings;
+        this.comment = comment;
+        this.stars = stars;
     }
 
     //on récupére les avis des restaurants ainsique les notes des utilisateurs

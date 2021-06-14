@@ -1,5 +1,5 @@
 class Advice {
-    constructor(stars, comment){
+    constructor(stars, comment) {
         this.stars = stars; 
         this.comment = comment; 
     }

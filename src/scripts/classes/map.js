@@ -162,8 +162,12 @@ class MyMap {
         let addAdressInput = $('<input>');
         addAdressInput.attr("type", "text");
         addAdressInput.attr("class", "form-control");
+        addAdressInput.attr("style", "pointer-events:none");
         addAdressInput.attr("id", "adressField"+index);
         addAdressInput.attr("placeholder", "ajouter l'adresse du restaurant ...");
+
+        let errorContainer = $('<div>');
+        errorContainer.attr("id", "errorContainer"+index);
 
         $("#map").append(modalContainer);
 
@@ -186,11 +190,13 @@ class MyMap {
         addAdressLabel.append("Adresse :");
         addAdress.append(addAdressInput);
         modalAdvice.append("");
+        modalContent.append(errorContainer);
         modalContent.append(modalFooter);
         modalFooter.append(closeModalButton);
         closeModalButton.append("Ajouter");
 
         $("#newRestaurant"+index).modal('show');
+        $("adressField"+index).prop( "disabled", true);
         
         $("#saveRestau"+index).click(() => {
             let newRestaurant = true
@@ -267,17 +273,35 @@ class MyMap {
         }
     }
 
+    errorMessage(field1, index) {
+
+        let error = $('<div>');
+        error.attr("id", "errorMessage"+index);
+        error.attr("class", "alert alert-danger");
+        error.attr("role", "alert");
+
+        let message = `<p>Attention : Votre pseudo doit contenir 3 lettres au minimum !</p>`;
+
+        $("#errorContainer"+index).append(error);
+        $(error).append(message);
+
+        //$("#saveRestau"+index).prop('disabled', true);
+    }
+
 
     verifyNumberCharacters(index, coords, field1, field2, checkValue) {
         if (field1.length < 3 || field2.length < 3) {
-            alert("Attention : Votre pseudo doit contenir 3 lettres au minimum !");
             checkValue = false;
+
+            this.errorMessage(field1, index);
             this.saveRestaurant(index, coords, checkValue, field1, field2);
         } else {
             checkValue = true;
-            this.saveRestaurant(index, coords, checkValue, field1, field2);
 
+            this.errorMessage(field1, index);
+            this.saveRestaurant(index, coords, checkValue, field1, field2);
         }
+
     }
 
     addMarker(coords, type) {
