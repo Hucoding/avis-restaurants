@@ -138,8 +138,10 @@ class MyMap {
         closeModalButton.attr("type", "button");
         closeModalButton.attr("class", "btn btn-default");
         closeModalButton.attr("data-dismiss", "modal");
+        closeModalButton.attr("disabled", true);
 
         let formNewRestaurant = $('<form>');
+        formNewRestaurant.attr("id", "from"+index);
 
         let addName = $('<div>');
         addName.attr("class", "form-group col-md-12");
@@ -198,10 +200,13 @@ class MyMap {
         $("#newRestaurant"+index).modal('show');
         $("adressField"+index).prop( "disabled", true);
         
+        let nameNewRestaurant = $("#nameField"+index).val();
+        let adressNewRestaurant = $("#adressField"+index).val();
+
+        this.checkInputIsNull(index);
+        
         $("#saveRestau"+index).click(() => {
             let newRestaurant = true
-            let nameNewRestaurant = $("#nameField"+index).val();
-            let adressNewRestaurant = $("#adressField"+index).val();
 
             $(addNameInput).val('');
 
@@ -273,32 +278,50 @@ class MyMap {
         }
     }
 
-    errorMessage(field1, index) {
+    checkInputIsNull(index) {
+        let self = this;
+        $(document).ready( function() {
+            $("#nameField"+index).keyup(function() {
+                let charactersInput = $(this).val();
+                $("#nameField"+index).on('change', function() {
+                    if (charactersInput.length > 3) {
+                        return self.errorMessage(index, false);
+                    } else { 
+                        return self.errorMessage(index, true);
+                    }
+                });
+            });
+        });
+    }
 
+    errorMessage(index, displayValue) {
         let error = $('<div>');
+
         error.attr("id", "errorMessage"+index);
         error.attr("class", "alert alert-danger");
         error.attr("role", "alert");
 
-        let message = `<p>Attention : Votre pseudo doit contenir 3 lettres au minimum !</p>`;
+        let message = `<p>Attention : Le nom de l'établissement doit contenir au moins 3 caractères au minimum !</p>`;
 
-        $("#errorContainer"+index).append(error);
-        $(error).append(message);
+        if(displayValue == true) {
+            $("#errorContainer"+index).html("");
+            $("#errorContainer"+index).append(error);
+            $(error).append(message);
+            $("#saveRestau"+index).prop("disabled", true);
+        } else {
+            $("#errorContainer"+index).html("");
+            $("#saveRestau"+index).prop("disabled", false);
+        }
 
-        //$("#saveRestau"+index).prop('disabled', true);
     }
 
 
     verifyNumberCharacters(index, coords, field1, field2, checkValue) {
         if (field1.length < 3 || field2.length < 3) {
             checkValue = false;
-
-            this.errorMessage(field1, index);
             this.saveRestaurant(index, coords, checkValue, field1, field2);
         } else {
             checkValue = true;
-
-            this.errorMessage(field1, index);
             this.saveRestaurant(index, coords, checkValue, field1, field2);
         }
 
