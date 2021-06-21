@@ -198,27 +198,10 @@ class MyMap {
         closeModalButton.append("Ajouter");
 
         $("#newRestaurant"+index).modal('show');
-        $("adressField"+index).prop( "disabled", true);
-        
-        let nameNewRestaurant = $("#nameField"+index).val();
-        let adressNewRestaurant = $("#adressField"+index).val();
+        $("#nameField"+index).val('');
+        $("#adressField"+index).prop( "disabled", true);
 
-        this.checkInputIsNull(index);
-        
-        $("#saveRestau"+index).click(() => {
-            let newRestaurant = true
-
-            $(addNameInput).val('');
-
-            this.verifyNumberCharacters(index, coords, nameNewRestaurant, adressNewRestaurant, newRestaurant);
-
-        });
-        
-    }
-
-    //ajout d'un avis sur un restaurant
-    addAdvice() {
-        //faire une boucle ici pour mettre à jour les informations notamment le html du modal restaurantDetails
+        this.checkInputIsNull(index, coords);
     }
 
     //ajout d'un nouveau restaurant sur la carte 
@@ -247,66 +230,61 @@ class MyMap {
 
     }
 
-    saveRestaurant(index, coords, checkValue, restaurantName, adress) {
+    saveRestaurant(index, coords, checkValue, restaurantName, address) {
 
         if (checkValue == true) {
+            
             const restaurantsJSON = new RestaurantsJSON(
                 restaurantName,
                 this.imgNewRestau[0][0],
-                adress,
+                address,
                 coords.lat(),
                 coords.lng(),
                 []
             );
-
+    
             console.log(restaurantsJSON);
-            console.log(global.data.restaurants);
 
-            global.data.restaurants.push(restaurantsJSON);
-            this.newDatas.push(restaurantsJSON);
-
-            let indexOfNewRestaurant = global.data.restaurants.length;
-
+            //this.newDatas.push(restaurantsJSON);
+    
+            //let indexOfNewRestaurant = global.data.restaurants.length;
+    
             this.newDatas.map((elRestau) => {
-                global.methods.displayImgs(restaurantsJSON, elRestau, indexOfNewRestaurant);
+                console.log(elRestau);
+                //global.methods.displayImgs(restaurantsJSON, elRestau, indexOfNewRestaurant);
                 //$('#newRestaurant'+index).remove(); supprimer la div d'ajout et affecter le nouveau modal
-            })
+            });
 
         } else {
-            console.log("don't save datas");
-            //retirer le marqueur ET ne pas faire d'enregistrement des valeurs
+            console.log("pas bon");
         }
+
     }
 
-    checkInputIsNull(index) {
+    checkInputIsNull(index, coords) {
         let self = this;
         $(document).ready( function() {
             $("#nameField"+index).keyup(function() {
                 let charactersInput = $(this).val();
                 $("#nameField"+index).on('change', function() {
                     if (charactersInput.length > 3) {
-                        return self.errorMessage(index, false);
+                        let name = $("#nameField"+index).val();
+                        let address = $("#adressField"+index).val();
+                        self.getDetailsRestaurant(index, name, address);
+                        return self.displayErrorMessage(index, false, coords);
                     } else { 
-                        return self.errorMessage(index, true);
+                        return self.displayErrorMessage(index, true, coords);
                     }
                 });
             });
         });
     }
 
-    errorMessage(index, displayValue) {
-        let error = $('<div>');
-
-        error.attr("id", "errorMessage"+index);
-        error.attr("class", "alert alert-danger");
-        error.attr("role", "alert");
-
-        let message = `<p>Attention : Le nom de l'établissement doit contenir au moins 3 caractères au minimum !</p>`;
+    displayErrorMessage(index, displayValue, coords) {
 
         if(displayValue == true) {
             $("#errorContainer"+index).html("");
-            $("#errorContainer"+index).append(error);
-            $(error).append(message);
+            global.methods.templateErrorMessage(index, true);
             $("#saveRestau"+index).prop("disabled", true);
         } else {
             $("#errorContainer"+index).html("");
@@ -315,16 +293,21 @@ class MyMap {
 
     }
 
-
-    verifyNumberCharacters(index, coords, field1, field2, checkValue) {
-        if (field1.length < 3 || field2.length < 3) {
-            checkValue = false;
-            this.saveRestaurant(index, coords, checkValue, field1, field2);
-        } else {
-            checkValue = true;
-            this.saveRestaurant(index, coords, checkValue, field1, field2);
-        }
-
+    getDetailsRestaurant(index, name, address) {
+        
+        $("#saveRestau"+index).click(() => {  
+            console.log(name, address);
+        });
+        /*
+            if (name.length > 1 && 
+                address.length > 1) {
+                let saveValue = true;
+                this.saveRestaurant(index, coords, saveValue, name, address);
+            } else {
+                let saveValue = false;
+                this.saveRestaurant(index, coords, saveValue, name, address);
+            }        
+        */
     }
 
     addMarker(coords, type) {

@@ -286,6 +286,7 @@ let global = {
             $("#allRestaurants").append(modalContainer);
 
             let formAdvice = $('<form>');
+            formAdvice.attr("id", "form"+index);
 
             let formAdviceTitle = $('<h3>');
             formAdviceTitle.attr("class", "col-md-12");
@@ -320,6 +321,9 @@ let global = {
             postAdviceButton.attr("class", "btn btn-success btn-lg btn-block");
             postAdviceButton.attr("style", "border-radius: 0; margin-top: 10px;"); 
 
+            let errorContainer = $('<div>');
+            errorContainer.attr("id", "errorContainer"+index);
+
             modalContainer.append(modalDialog);
             modalDialog.append(modalContent);
             modalContent.append(modalHeader);
@@ -338,8 +342,9 @@ let global = {
             formSelectLabel.append("Ajoutez une note :");
             formSelectBody.append(selectRatings);
             selectRatings.append(optionRating);
+            modalFormAdvice.append(errorContainer);
 
-            for (var i=0; i < ratings.length; i++){
+            for (let i = 0; i < ratings.length; i++){
                 option += '<option value="'+ ratings[i] + '">' + ratings[i] + '</option>';
             }
             $('#ratingType' + index).append(option);
@@ -361,43 +366,52 @@ let global = {
                 let rating = $("#ratingType"+index).val();
                 let comment = $("#comment"+index).val();
                 
-                console.log("rating => " + rating);
-                console.log("comment => " + comment);
-                global.methods.verifyNumberCharactersAdvice(rating, comment, newAdvice);
-    
+                global.methods.verifyNumberCharactersAdvice(object, restaurant, index, rating, comment, newAdvice);
             });
         },
 
-        verifyNumberCharactersAdvice(field1, field2, checkValue) {
-            console.log("field1 => " + field1);
-            console.log("field2 => " + field2);
-            console.log("checkValue => " + checkValue);
-            if (field2.length < 3) {
-                alert("Attention : Votre pseudo doit contenir 3 lettres au minimum !");
+        verifyNumberCharactersAdvice(object, restaurant, index, field1, field2, checkValue) {
+            if (field2.length < 3 || field1.length < 1) {
                 checkValue = false;
-                global.methods.saveComment(checkValue, field1, field2);
+                global.methods.saveComment(object, restaurant, index, checkValue, field1, field2);
             } else {
                 checkValue = true;
-                global.methods.saveComment(checkValue, field1, field2);
+                global.methods.saveComment(object, restaurant, index, checkValue, field1, field2);
             }
         },
 
-        saveComment(checkValue, rating, comment) {
+        saveComment(object, restaurant, index, checkValue, rating, comment) {
             if (checkValue == true) {
-
-                console.log("saveComment rating => " + rating);
-                console.log("saveComment comment => " + comment);
+                $("#errorContainer"+index).html("");
                 
-                //voir pourquoi l'objet n'est pas identifié 
                 const advice = new Advice(
                     rating,
                     comment
                 ); 
 
-                console.log(advice);
+                restaurant.ratings.push(advice);
+
+                $("costumerAdvice"+index).append(object.getAdviceFromRestaurantsJSON(index, restaurant.ratings));
     
             } else {
-                console.log("ne pas enregistrer se commentaire");
+                $("#errorContainer"+index).html("");
+                global.methods.templateErrorMessage(index, true);
+            }
+        },
+
+        templateErrorMessage(index, activeValue) {
+            let error = $('<div>');
+    
+            error.attr("id", "errorMessage"+index);
+            error.attr("class", "alert alert-danger");
+            error.attr("role", "alert");
+    
+            let message = `<p>Attention : Le nom de l'établissement doit contenir au moins 3 caractères au minimum !</p>`;
+    
+            if(activeValue == true ){
+                $("#errorContainer"+index).html("");
+                $("#errorContainer"+index).append(error);
+                $(error).append(message);
             }
         },
 

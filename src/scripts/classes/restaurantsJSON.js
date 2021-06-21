@@ -28,8 +28,10 @@ class RestaurantsJSON {
 
         } else {
 
+            $(`#costumerAdvice${numberOfRestau}`).html('');
+
             for(let j = 0; j < ratingsRestaurant.length; j++) {  
-            
+        
                 let adviceTemplate = `
                     <div id="advice${j+1}" class="media text-muted pt-3">
                         <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
