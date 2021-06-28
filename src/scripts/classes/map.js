@@ -26,14 +26,15 @@ class MyMap {
             //récupérer photo d'une position clickée
             this.map.addListener("click", (mapsMouseEvent) => {
 
-                const marker = new google.maps.Marker({
+                /*const marker = new google.maps.Marker({
                     position: mapsMouseEvent.latLng,
                     title: 'Nouveau restaurant',
                     map: this.map,
                     draggable: false
-                });
+                });*/
+
                 let index;
-                this.addRestaurant(marker, index, mapsMouseEvent.latLng);
+                this.addRestaurant(/*marker,*/ index, mapsMouseEvent.latLng);
                 this.getAddress(mapsMouseEvent.latLng)
 
             });
@@ -201,11 +202,16 @@ class MyMap {
         $("#nameField"+index).val('');
         $("#adressField"+index).prop( "disabled", true);
 
+        let name = $("#nameField"+index).val();
+        let address = $("#adressField"+index).val();
+
         this.checkInputIsNull(index, coords);
+
+        //this.getDetailsRestaurant(index, name, address);
     }
 
     //ajout d'un nouveau restaurant sur la carte 
-    addRestaurant(marker, index, coords) {
+    addRestaurant(/*marker,*/ index, coords) {
         //créer des index en auto pour générer des modals différents pour chaque marqueur
         this.newRestaurants.push(coords);
 
@@ -221,9 +227,11 @@ class MyMap {
                     $('[id=newRestaurant' + index + ']').slice(1).remove();
                 });
 
-                marker.addListener("click", () => {
+                $(`#newRestaurant${index}`).modal('show'); 
+
+                /*marker.addListener("click", () => {
                     $(`#newRestaurant${index}`).modal('show'); 
-                });
+                });*/
             }
         
         }
@@ -243,71 +251,97 @@ class MyMap {
                 []
             );
     
-            console.log(restaurantsJSON);
+            this.newDatas.push(restaurantsJSON);
 
-            //this.newDatas.push(restaurantsJSON);
-    
-            //let indexOfNewRestaurant = global.data.restaurants.length;
+            console.log("array for display new restau datas => " + this.newDatas);
+
+            global.data.restaurants.push(restaurantsJSON);
+
+            
+            console.log("array for actual JSON data with new datas => " + global.data.restaurants.length);
+
+                
+            let indexOfNewRestaurant = global.data.restaurants.length;
     
             this.newDatas.map((elRestau) => {
-                console.log(elRestau);
-                //global.methods.displayImgs(restaurantsJSON, elRestau, indexOfNewRestaurant);
-                //$('#newRestaurant'+index).remove(); supprimer la div d'ajout et affecter le nouveau modal
+                global.methods.displayImgs(restaurantsJSON, elRestau, indexOfNewRestaurant);
+
+                $('#newRestaurant'+index).remove();
+                $('.modal-backdrop.fade.show').remove();
+
+                const marker = new google.maps.Marker({
+                    position: coords,
+                    title: 'Nouveau restaurant',
+                    map: this.map,
+                    draggable: false
+                });
+
+                marker.addListener("click", () => {
+                    $(`#restaurantDetails${indexOfNewRestaurant}`).modal('show'); 
+                });
+
             });
 
-        } else {
-            console.log("pas bon");
         }
 
     }
 
+
     checkInputIsNull(index, coords) {
         let self = this;
+        let typingTimer;                
+        let doneTypingInterval = 1000;  
+
         $(document).ready( function() {
-            $("#nameField"+index).keyup(function() {
+            $("#nameField"+index).on('keyup', function(e) {
                 let charactersInput = $(this).val();
-                $("#nameField"+index).on('change', function() {
+                if(charactersInput.length == 0){
+                    $("#errorContainer"+index).html("");
+                } else {
                     if (charactersInput.length > 3) {
-                        let name = $("#nameField"+index).val();
-                        let address = $("#adressField"+index).val();
-                        self.getDetailsRestaurant(index, name, address);
-                        return self.displayErrorMessage(index, false, coords);
+                        clearTimeout(typingTimer);
+                        typingTimer = setTimeout(function(){
+                            let name = $("#nameField"+index).val();
+                            let address = $("#adressField"+index).val();
+                            return self.displayErrorMessage(index, false, coords, name, address);
+                        }, doneTypingInterval);
                     } else { 
-                        return self.displayErrorMessage(index, true, coords);
+                       return self.displayErrorMessage(index, true, coords);
                     }
-                });
+                }
             });
         });
     }
+
 
     displayErrorMessage(index, displayValue, coords) {
 
         if(displayValue == true) {
             $("#errorContainer"+index).html("");
-            global.methods.templateErrorMessage(index, true);
+            let typeValueIsRestaurant = true;
+            global.methods.templateErrorMessage(index, true, typeValueIsRestaurant);
             $("#saveRestau"+index).prop("disabled", true);
         } else {
             $("#errorContainer"+index).html("");
             $("#saveRestau"+index).prop("disabled", false);
+            $("#saveRestau"+index).click(() => {  
+                let address = $("#adressField"+index).val();
+                let name = $("#nameField"+index).val();
+                this.getDetailsRestaurant(index, coords, name, address);
+            });
         }
 
     }
 
-    getDetailsRestaurant(index, name, address) {
-        
-        $("#saveRestau"+index).click(() => {  
-            console.log(name, address);
-        });
-        /*
-            if (name.length > 1 && 
-                address.length > 1) {
-                let saveValue = true;
-                this.saveRestaurant(index, coords, saveValue, name, address);
-            } else {
-                let saveValue = false;
-                this.saveRestaurant(index, coords, saveValue, name, address);
-            }        
-        */
+    getDetailsRestaurant(index, coords ,name, address) {
+        if (name.length > 1 && 
+            address.length > 1) {
+            let saveValue = true;
+            this.saveRestaurant(index, coords, saveValue, name, address);
+        } else {
+            let saveValue = false;
+            this.saveRestaurant(index, coords, saveValue, name, address);
+        }        
     }
 
     addMarker(coords, type) {
@@ -353,3 +387,4 @@ class MyMap {
     }
 
 }
+

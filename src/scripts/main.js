@@ -174,12 +174,19 @@ let global = {
                 element.lat, 
                 element.lng
             );
-            
+
             global.methods.generateCardTemplate(object, element, restauIndex);
-            global.methods.generateModalCardTemplate("restaurantDetails", object, element, restauIndex);
+            global.methods.generateModalCardTemplate("restaurantDetails", "allRestaurants", object, element, restauIndex);
 
             global.methods.getImgs(element, markerCoords, "urlImg", restauIndex);
             global.methods.getImgs(element, markerCoords, "modalImg", restauIndex);
+
+            const marker = global.data.map.addMarker(markerCoords, false);
+
+            marker.addListener("click", () => {
+                $(`#restaurantDetails${restauIndex}`).modal('show'); 
+            });
+
 
         },
 
@@ -225,6 +232,7 @@ let global = {
 
             let restauAverage =  $('<small>');
             restauAverage.attr("class", "text-muted");
+            restauAverage.attr("id", "restauAverage"+index);
 
             $("#allRestaurants").append(buttonCard);
 
@@ -240,7 +248,7 @@ let global = {
 
         },
 
-        generateModalCardTemplate(id, object, restaurant, index) {
+        generateModalCardTemplate(id, appendId, object, restaurant, index) {
 
             let ratings = [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
             let option = '';
@@ -283,7 +291,7 @@ let global = {
             closeModalButton.attr("class", "btn btn-default");
             closeModalButton.attr("data-dismiss", "modal");
 
-            $("#allRestaurants").append(modalContainer);
+            $("#"+appendId).append(modalContainer);
 
             let formAdvice = $('<form>');
             formAdvice.attr("id", "form"+index);
@@ -383,31 +391,42 @@ let global = {
         saveComment(object, restaurant, index, checkValue, rating, comment) {
             if (checkValue == true) {
                 $("#errorContainer"+index).html("");
+                $("#restauAverage"+index).html("");
+                $("#comment"+index).val('');
+                $("#ratingType"+index).val('');
                 
                 const advice = new Advice(
-                    rating,
+                    Number(rating),
                     comment
                 ); 
 
                 restaurant.ratings.push(advice);
 
-                $("costumerAdvice"+index).append(object.getAdviceFromRestaurantsJSON(index, restaurant.ratings));
-    
+                $("#costumerAdvice"+index).append(object.getAdviceFromRestaurantsJSON(index, restaurant.ratings));
+                $("#restauAverage"+index).append(object.displayAverage(restaurant));
+               
             } else {
                 $("#errorContainer"+index).html("");
-                global.methods.templateErrorMessage(index, true);
+                let typeValueIsComment = false;
+                global.methods.templateErrorMessage(index, true, typeValueIsComment);
             }
         },
 
-        templateErrorMessage(index, activeValue) {
+        templateErrorMessage(index, activeValue, typeValue) {
             let error = $('<div>');
     
             error.attr("id", "errorMessage"+index);
             error.attr("class", "alert alert-danger");
             error.attr("role", "alert");
-    
-            let message = `<p>Attention : Le nom de l'établissement doit contenir au moins 3 caractères au minimum !</p>`;
-    
+
+            let message;
+
+            if(typeValue == true) {
+                message = `<p>Attention : Le nom de l'établissement doit contenir au moins 3 caractères au minimum !</p>`;
+            } else {
+                message = `<p>Attention : Votre commentaire doit contenir au moins 3 caractères au minimum !</p>`;
+            }
+        
             if(activeValue == true ){
                 $("#errorContainer"+index).html("");
                 $("#errorContainer"+index).append(error);
@@ -444,6 +463,8 @@ let global = {
         updateListing(restaurants) {
 
             $('#allRestaurants').html('');
+
+            console.log(restaurants);
 
             restaurants.map((elRestau, index) => {
 
