@@ -1,27 +1,26 @@
 class MyMap {
-    constructor(latMap, lngMap){
+    constructor(latMap, lngMap, locationIsActived){
         this.map = null;
         this.latMap = latMap; 
         this.lngMap = lngMap; 
+        this.locationIsActived = locationIsActived;
         this.markers = [];
         this.imgNewRestau = [];
         this.newRestaurants = [];
         this.newDatas = [];
+        this.placesDatas = [];
+        this.place = null;
     }
 
-    initMap(latMap, lngMap) {
+    initMap(latMap, lngMap, locationIsActived) {
 
         if(latMap != undefined && lngMap != undefined) {
 
-            let initCoords = new google.maps.LatLng(latMap, lngMap);
-            let initZoom = 15;
-
-            this.map = new google.maps.Map(document.getElementById("map"), {
-                zoom: initZoom,
-                center: initCoords,
-                mapTypeId: google.maps.MapTypeId.ROADMAP
-            });
-
+            if (locationIsActived == true) {
+                this.getMapWithUserParams(latMap, lngMap);
+            } else {
+                this.getMapWithUserParams(latMap, lngMap);
+            }
 
             //récupérer photo d'une position clickée
             this.map.addListener("click", (mapsMouseEvent) => {
@@ -40,6 +39,91 @@ class MyMap {
             });
 
         } 
+    }
+
+    getMapWithUserParams(latMap, lngMap) {
+        let service;
+
+        let initCoords = new google.maps.LatLng(latMap, lngMap);
+        let initZoom = 15;
+
+        this.map = new google.maps.Map(document.getElementById("map"), {
+            zoom: initZoom,
+            center: initCoords,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        });
+
+        let map = this.map;
+
+        let request = {
+            location: initCoords,
+            radius: '500',
+            type: ['restaurant']
+        };
+    
+        service = new google.maps.places.PlacesService(map);
+        return this.restaurantsSearch(request, service);
+    }
+
+    restaurantsSearch(request, service) {
+        service.nearbySearch(
+            request,
+            (results, status) => {
+                if (status === google.maps.places.PlacesServiceStatus.OK) {
+                    for (let i = 0; i < results.length; i++) {
+
+                        this.place = this.createObject(
+                            results[i].name, 
+                            "", 
+                            results[i].vicinity, 
+                            Number(results[i].geometry.location.lat().toFixed(7)), 
+                            Number(results[i].geometry.location.lng().toFixed(7)), 
+                            [], 
+                            "", 
+                        );
+
+                        let positionLat = results[i].geometry.location.lat();
+                        let positionLng = results[i].geometry.location.lng();
+        
+                        let coordsRestau = new google.maps.LatLng(positionLat, positionLng);
+
+                        global.data.map.addMarker(coordsRestau, false);
+
+                    }
+                    this.addRestaurantFromPlaces(this.place);
+                }
+            }
+        );
+    }
+
+    createObject(name, photo, address, lat, lng, ratings, comment) {
+        const restaurantsJSON = new RestaurantsJSON(
+            name, 
+            photo, 
+            address, 
+            lat, 
+            lng, 
+            ratings, 
+            comment, 
+        );
+
+        delete restaurantsJSON.comment;
+        delete restaurantsJSON.stars;
+
+        //console.log(restaurantsJSON);
+
+        this.placesDatas.push(restaurantsJSON);
+        global.data.restaurants.push(restaurantsJSON);
+
+        return restaurantsJSON;
+    }
+
+    addRestaurantFromPlaces(object) {
+        $("#allRestaurants").html("");
+        global.data.restaurants.map((elRestau, index) => {
+            global.methods.displayImgs(object, elRestau, index);
+        });
+
     }
 
     // récupérer l'adresse du restau par le click
@@ -202,23 +286,18 @@ class MyMap {
         $("#nameField"+index).val('');
         $("#adressField"+index).prop( "disabled", true);
 
-        let name = $("#nameField"+index).val();
-        let address = $("#adressField"+index).val();
-
         this.checkInputIsNull(index, coords);
-
-        //this.getDetailsRestaurant(index, name, address);
     }
 
     //ajout d'un nouveau restaurant sur la carte 
-    addRestaurant(/*marker,*/ index, coords) {
+    addRestaurant(index, coords) {
         //créer des index en auto pour générer des modals différents pour chaque marqueur
         this.newRestaurants.push(coords);
-
         for(let i = 0; i < this.newRestaurants.length; i++) {
-            //résoudre le problème de génération des modal (chaque modal doit être unique)
             if($("#newRestaurant" + index).length == 0) {
                 index = i+1;
+
+                console.log("index =>" + index);
 
                 this.generateModalTemplateForNewRestaurant(coords, index);  
                 this.getImgForNewRestaurant(coords, "modalNewRestauImg", index);
@@ -229,9 +308,6 @@ class MyMap {
 
                 $(`#newRestaurant${index}`).modal('show'); 
 
-                /*marker.addListener("click", () => {
-                    $(`#newRestaurant${index}`).modal('show'); 
-                });*/
             }
         
         }
@@ -252,19 +328,12 @@ class MyMap {
             );
     
             this.newDatas.push(restaurantsJSON);
-
-            console.log("array for display new restau datas => " + this.newDatas);
-
             global.data.restaurants.push(restaurantsJSON);
-
-            
-            console.log("array for actual JSON data with new datas => " + global.data.restaurants.length);
-
                 
             let indexOfNewRestaurant = global.data.restaurants.length;
     
             this.newDatas.map((elRestau) => {
-                global.methods.displayImgs(restaurantsJSON, elRestau, indexOfNewRestaurant);
+                global.methods.displayImgs(restaurantsJSON, elRestau, indexOfNewRestaurant-1);
 
                 $('#newRestaurant'+index).remove();
                 $('.modal-backdrop.fade.show').remove();
@@ -293,7 +362,7 @@ class MyMap {
         let doneTypingInterval = 1000;  
 
         $(document).ready( function() {
-            $("#nameField"+index).on('keyup', function(e) {
+            $("#nameField"+index).change( function(e) {
                 let charactersInput = $(this).val();
                 if(charactersInput.length == 0){
                     $("#errorContainer"+index).html("");

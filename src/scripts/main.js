@@ -11,12 +11,30 @@ let global = {
     methods: {
 
         //insertion d'une balise script pour initialiser la map de GOOGLE
-        loadScript() {
+        /*loadScript() {
             let mapScript = document.createElement('script');
             mapScript.type = 'text/javascript';
             mapScript.src = "https://maps.googleapis.com/maps/api/js?key=" + apiKey + "";
             document.body.append(mapScript);  
-        },                      
+
+            let placesScript = document.createElement('script');
+            placesScript.type = 'text/javascript';
+            placesScript.src = "https://maps.googleapis.com/maps/api/js?key=" + apiKey + "&libraries=places";
+            document.body.append(placesScript);  
+        },*/
+        
+        /*restauNearByUser(lat, lng) {
+            console.log(lat, lng);
+            let service;
+
+            const location = new google.maps.LatLng(lat, lng);
+
+            let map = new google.maps.Map(document.getElementById("map"), {
+                center: location,
+                zoom: 15,
+            });
+
+        },*/
 
         //Filtrage des restaurants par leur moyenne de notes
         filterRatings(restaurants, ratingsAverage) {
@@ -51,35 +69,47 @@ let global = {
 
         //récupération de la validation de la géolocalisation par l'utilisateur
         getGeolocationUserPermission() {
+            let locationIsActived;
             navigator.geolocation.getCurrentPosition( function(position) {
                 let positionLat = position.coords.latitude;
                 let positionLng = position.coords.longitude;
 
                 let coordsUser = new google.maps.LatLng(positionLat, positionLng);
 
-                const mapGoogle = new MyMap(positionLat, positionLng);
-                mapGoogle.initMap(positionLat, positionLng);
+                locationIsActived = true;
+
+                const mapGoogle = new MyMap(positionLat, positionLng, locationIsActived);
+                mapGoogle.initMap(positionLat, positionLng, locationIsActived);
                 global.data.map = mapGoogle;
 
                 mapGoogle.addMarker(coordsUser, true);
 
                 //affichage des cards des restaurants
                 global.methods.initDisplayRestaurants();
+                //global.methods.restauNearByUser(positionLat, positionLng);
+
             }, error => {
+                console.log("default user location");
                 let positionLat = 48.856614;
                 let positionLng = 2.3522219;
                 
                 // if the user decline the location display the default marker in Paris 
                 let defaultUserCoords = new google.maps.LatLng(positionLat, positionLng);
+
+                locationIsActived = false;
         
-                const mapGoogle = new MyMap(positionLat, positionLng);
-                mapGoogle.initMap(positionLat, positionLng);
+                const mapGoogle = new MyMap(positionLat, positionLng, locationIsActived);
+                mapGoogle.initMap(positionLat, positionLng, locationIsActived);
                 global.data.map = mapGoogle;
+
+                console.log(global.data.map);
 
                 mapGoogle.addMarker(defaultUserCoords, true);
 
                 //affichage des cards des restaurants
                 global.methods.initDisplayRestaurants();
+                //global.methods.restauNearByUser(positionLat, positionLng);
+
             });
         },
 
@@ -115,6 +145,7 @@ let global = {
 
        //récupération des photos des restaurant via GOOGLE STREETVIEW
         getImgs(restaurant, coords, id, index) {
+
             var panorama = new google.maps.StreetViewPanorama(
                 document.getElementById(id+index), {
                 position: coords, 
@@ -145,7 +176,7 @@ let global = {
                 
                 let latlng = panorama.getPosition();
                 let pov = panorama.getPov();
-                let url = "https://maps.googleapis.com/maps/api/streetview?size=500x400&location=" + latlng.lat() + ", " + latlng.lng() + "&fov=" + (180 / Math.pow(2, pov.zoom)) +  "&heading=" + pov.heading + "&pitch=" + pov.pitch + "&key=" + apiKey;
+                let url = "https://maps.googleapis.com/maps/api/streetview?size=500x400&location=" + encodeURIComponent(latlng.lat() + ", " + latlng.lng()) + "&fov=" + (180 / Math.pow(2, pov.zoom)) +  "&heading=" + pov.heading + "&pitch=" + pov.pitch + "&key=" + apiKey;
                 resolve(url);
             
             });
@@ -159,7 +190,8 @@ let global = {
                     restaurant.photo = values;
                     return restaurant.photo;
                 } else {
-                   $(id+index).append(values);
+                    console.log(values);
+                   $(id+index).append(values[0]);
                 }
 
             });
@@ -181,13 +213,6 @@ let global = {
             global.methods.getImgs(element, markerCoords, "urlImg", restauIndex);
             global.methods.getImgs(element, markerCoords, "modalImg", restauIndex);
 
-            const marker = global.data.map.addMarker(markerCoords, false);
-
-            marker.addListener("click", () => {
-                $(`#restaurantDetails${restauIndex}`).modal('show'); 
-            });
-
-
         },
 
         // génération d'une card d'un restaurant dans #allRestaurants
@@ -199,7 +224,9 @@ let global = {
             buttonCard.attr("type", "button");
             buttonCard.attr("data-toggle", "modal");
             buttonCard.attr("data-target", "#restaurantDetails"+index);
-        
+            buttonCard.attr("data-backdrop", "static");
+            buttonCard.attr("data-keyboard", "false");
+
             let cardBody = $('<div>');
             cardBody.attr("id", "cardOfRestau"+index);
             cardBody.attr("class", "card mb-3 cardOfRestau");
@@ -287,6 +314,7 @@ let global = {
             modalFooter.attr("class", "modal-footer modal-footer--mine");
 
             let closeModalButton = $('<button>');
+            closeModalButton.attr("id", "closeButton"+index);
             closeModalButton.attr("type", "button");
             closeModalButton.attr("class", "btn btn-default");
             closeModalButton.attr("data-dismiss", "modal");
@@ -369,6 +397,11 @@ let global = {
             modalFooter.append(closeModalButton);
             closeModalButton.append("Fermer");
 
+            $("#closeButton"+index).click(() => {
+                $("#comment"+index).val('');
+                $("#ratingType"+index).val('');
+            });
+
             $("#postAdviceButton"+index).click(() => {
                 let newAdvice = true;
                 let rating = $("#ratingType"+index).val();
@@ -425,6 +458,10 @@ let global = {
                 message = `<p>Attention : Le nom de l'établissement doit contenir au moins 3 caractères au minimum !</p>`;
             } else {
                 message = `<p>Attention : Votre commentaire doit contenir au moins 3 caractères au minimum !</p>`;
+                if($("#ratingType"+index).val() == 0) {
+                    message = '';
+                    message = `<p>Attention : Vous devez ajoutez une note entre 1 et 5 !</p>`;
+                }
             }
         
             if(activeValue == true ){
@@ -468,6 +505,8 @@ let global = {
 
             restaurants.map((elRestau, index) => {
 
+                let restauIndex = index+1;
+
                 const restaurantsJSON = new RestaurantsJSON(
                     elRestau.restaurantName, 
                     elRestau.photo, 
@@ -487,6 +526,11 @@ let global = {
 
                 global.data.map.addMarker(coordsRestau, false);
                 global.methods.filterRatings(restaurants, restaurantsJSON.displayAverage(elRestau));
+                const marker = global.data.map.addMarker(coordsRestau, false);
+
+                marker.addListener("click", () => {
+                    $(`#restaurantDetails${restauIndex}`).modal('show'); 
+                });
             })
         },
 
