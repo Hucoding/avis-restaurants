@@ -25,15 +25,8 @@ class MyMap {
             //récupérer photo d'une position clickée
             this.map.addListener("click", (mapsMouseEvent) => {
 
-                /*const marker = new google.maps.Marker({
-                    position: mapsMouseEvent.latLng,
-                    title: 'Nouveau restaurant',
-                    map: this.map,
-                    draggable: false
-                });*/
-
                 let index;
-                this.addRestaurant(/*marker,*/ index, mapsMouseEvent.latLng);
+                this.addRestaurant(index, mapsMouseEvent.latLng);
                 this.getAddress(mapsMouseEvent.latLng)
 
             });
@@ -41,6 +34,7 @@ class MyMap {
         } 
     }
 
+    //récupération des paramètres de l'utilisateur pour lui afficher les restaurants aux alentours
     getMapWithUserParams(latMap, lngMap) {
         let service;
 
@@ -50,14 +44,14 @@ class MyMap {
         this.map = new google.maps.Map(document.getElementById("map"), {
             zoom: initZoom,
             center: initCoords,
-            mapTypeId: google.maps.MapTypeId.ROADMAP
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
         });
 
         let map = this.map;
 
         let request = {
             location: initCoords,
-            radius: '500',
+            radius: '1500',
             type: ['restaurant']
         };
     
@@ -65,6 +59,7 @@ class MyMap {
         return this.restaurantsSearch(request, service);
     }
 
+    // recherche et ajout de nouveau restaurants via google places
     restaurantsSearch(request, service) {
         service.nearbySearch(
             request,
@@ -72,6 +67,7 @@ class MyMap {
                 if (status === google.maps.places.PlacesServiceStatus.OK) {
                     for (let i = 0; i < results.length; i++) {
 
+                        // création de l'objet du nouveau restaurant
                         this.place = this.createObject(
                             results[i].name, 
                             "", 
@@ -86,7 +82,8 @@ class MyMap {
                         let positionLng = results[i].geometry.location.lng();
         
                         let coordsRestau = new google.maps.LatLng(positionLat, positionLng);
-
+                        
+                        //ajout du marqueur du nouveau restaurant
                         global.data.map.addMarker(coordsRestau, false);
 
                     }
@@ -96,7 +93,9 @@ class MyMap {
         );
     }
 
+    //fonction de création d'un njouveal objet
     createObject(name, photo, address, lat, lng, ratings, comment) {
+
         const restaurantsJSON = new RestaurantsJSON(
             name, 
             photo, 
@@ -110,20 +109,19 @@ class MyMap {
         delete restaurantsJSON.comment;
         delete restaurantsJSON.stars;
 
-        //console.log(restaurantsJSON);
-
         this.placesDatas.push(restaurantsJSON);
         global.data.restaurants.push(restaurantsJSON);
 
         return restaurantsJSON;
     }
 
+    //affectation des cards dans #allRestaurants avec la fonctionnalité de click sur les nouveaux markers
     addRestaurantFromPlaces(object) {
         $("#allRestaurants").html("");
         global.data.restaurants.map((elRestau, index) => {
             global.methods.displayImgs(object, elRestau, index);
+            global.methods.updateMarkers(this.placesDatas);
         });
-
     }
 
     // récupérer l'adresse du restau par le click
@@ -143,52 +141,9 @@ class MyMap {
         }); 
     }
 
-    //récupération de la photo du restau
-    getImgForNewRestaurant(coords, id, index) {
-
-        console.log("getImgForNewRestaurant" + coords);
-
-        var panorama = new google.maps.StreetViewPanorama(
-            document.getElementById(id+index), {
-            position: coords, 
-            pov: {
-                heading: 34,
-                pitch: 10,
-                zoom: 1
-            }, 
-            fullscreenControl: false, 
-            disableDefaultUI: true,
-            linksControl: false,
-            panControl: false,
-            enableCloseButton: false,
-            scrollwheel: false,
-            zoomControl: false,
-            addressControl: false,
-            overviewMapControl: false,
-            motionTracking: false,
-            motionTrackingControl: false,
-            clickToGo: false
-        });
-
-        const imgs = new Promise((resolve, reject) => {
-            
-            let latlng = panorama.getPosition();
-            let pov = panorama.getPov();
-            // encodeURIComponent => est important sinon le lien est coupé
-            let url = "https://maps.googleapis.com/maps/api/streetview?size=500x400&location=" + encodeURIComponent(latlng.lat() + ", " + latlng.lng()) + "&fov=" + (180 / Math.pow(2, pov.zoom)) +  "&heading=" + pov.heading + "&pitch=" + pov.pitch + "&key=" + apiKey;
-            resolve(url);
-        
-        });
-
-        Promise.all([imgs]).then((values) => {
-            $(id+index).append(values);
-            this.imgNewRestau.push(values);
-        });
-
-    }
-
     // création d'une modal pour un nouveau restaurant
-    generateModalTemplateForNewRestaurant(coords, index) {
+    generateModalTemplateForNewRestaurant(coords, index, urlImg) {
+        console.log(urlImg);
         let modalContainer = $('<div>');
         modalContainer.attr("id", "newRestaurant"+index);
         modalContainer.attr("class", "modal fade");
@@ -207,9 +162,10 @@ class MyMap {
         let modalBody = $('<div>');
         modalBody.attr("class", "modal-body d-flex justify-content-center"); 
 
-        let modalNewRestauImg = $('<div>');
+        let modalNewRestauImg = $('<img>');
         modalNewRestauImg.attr("id", "modalNewRestauImg"+index);
         modalNewRestauImg.attr("class", "col-md-12 modalNewRestauImg"); 
+        modalNewRestauImg.attr("src", urlImg);
 
         let modalAdvice = $('<div>');
         modalAdvice.attr("id", "costumerAdviceNewRestau"+index);
@@ -297,10 +253,9 @@ class MyMap {
             if($("#newRestaurant" + index).length == 0) {
                 index = i+1;
 
-                console.log("index =>" + index);
+                let urlImg = global.methods.getImgs(coords);
 
-                this.generateModalTemplateForNewRestaurant(coords, index);  
-                this.getImgForNewRestaurant(coords, "modalNewRestauImg", index);
+                this.generateModalTemplateForNewRestaurant(coords, index, urlImg);  
 
                 $('#map').each(function(i) {
                     $('[id=newRestaurant' + index + ']').slice(1).remove();
@@ -314,6 +269,7 @@ class MyMap {
 
     }
 
+    // création et enregistrement d'un nouvel objet (restaurant) dans un tableau
     saveRestaurant(index, coords, checkValue, restaurantName, address) {
 
         if (checkValue == true) {
@@ -355,7 +311,7 @@ class MyMap {
 
     }
 
-
+    // vérification de l'input "Name" du formulaire d'ajout d'un restaurant
     checkInputIsNull(index, coords) {
         let self = this;
         let typingTimer;                
@@ -382,7 +338,7 @@ class MyMap {
         });
     }
 
-
+    // affichage d'un message d'erreur personnalisé si les champs ne sont pas remplis correctement 
     displayErrorMessage(index, displayValue, coords) {
 
         if(displayValue == true) {
@@ -402,6 +358,7 @@ class MyMap {
 
     }
 
+    // récupération et vérification des champs avant enregistrement des valeurs du nouveau restaurant
     getDetailsRestaurant(index, coords ,name, address) {
         if (name.length > 1 && 
             address.length > 1) {
@@ -413,6 +370,7 @@ class MyMap {
         }        
     }
 
+    //ajout d'un marker en fonction du type (si true alors c'est un user ou sinon c'est un restaurant)
     addMarker(coords, type) {
 
         if(type == true) {
@@ -428,7 +386,7 @@ class MyMap {
         } else {
             const marker = new google.maps.Marker({
                 map: this.map, 
-                position: coords
+                position: coords, 
             });
             this.markers.push(marker);
             return marker;
@@ -436,15 +394,14 @@ class MyMap {
         
     }
 
-    // Sets the map on all markers in the array.
+    // Définit la carte sur tous les markers du tableau
     setMapOnAll() {
         for (let i = 0; i < allMarkers.length; i++) {
-            console.log('ALLMARKERS =>' + allMarkers);
             allMarkers[i].setMap(this.map);
         }
     }
     
-    // Removes the markers from the map, but keeps them in the array.
+    // Supprime les marqueurs de la carte, mais les conserve dans le tableau
     clearMarkers() {
         this.markers.forEach(marker => {
             marker.setMap(null);
@@ -456,4 +413,3 @@ class MyMap {
     }
 
 }
-

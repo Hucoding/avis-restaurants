@@ -144,74 +144,29 @@ let global = {
         },
 
        //récupération des photos des restaurant via GOOGLE STREETVIEW
-        getImgs(restaurant, coords, id, index) {
-
-            var panorama = new google.maps.StreetViewPanorama(
-                document.getElementById(id+index), {
-                position: coords, 
-                pov: {
-                    heading: 34,
-                    pitch: 10,
-                    zoom: 1
-                }, 
-                fullscreenControl: false, 
-                disableDefaultUI: true,
-                linksControl: false,
-                panControl: false,
-                enableCloseButton: false,
-                scrollwheel: false,
-                zoomControl: false,
-                addressControl: false,
-                overviewMapControl: false,
-                motionTracking: false,
-                motionTrackingControl: false,
-                clickToGo: false
-            });
-
-            $("#restaurantDetails"+index).on('shown.bs.modal', function () {
-                google.maps.event.trigger(panorama, "resize");
-            });
-
-            const imgs = new Promise((resolve, reject) => {
-                
-                let latlng = panorama.getPosition();
-                let pov = panorama.getPov();
-                let url = "https://maps.googleapis.com/maps/api/streetview?size=500x400&location=" + encodeURIComponent(latlng.lat() + ", " + latlng.lng()) + "&fov=" + (180 / Math.pow(2, pov.zoom)) +  "&heading=" + pov.heading + "&pitch=" + pov.pitch + "&key=" + apiKey;
-                resolve(url);
-            
-            });
-
-            Promise.all([imgs]).then((values) => {
-                
-                if (values == null || values == "") {
-                    values = restaurant.photo;
-                    return values;
-                } else if (restaurant.photo == null || restaurant.photo == "") {
-                    restaurant.photo = values;
-                    return restaurant.photo;
-                } else {
-                    console.log(values);
-                   $(id+index).append(values[0]);
-                }
-
-            });
-
+        getImgs(restaurant) {
+            let url;
+            if (status === google.maps.StreetViewStatus.OK) {
+                console.log("coucou");
+            } 
+            url = "https://maps.googleapis.com/maps/api/streetview?size=500x400&location=" + encodeURIComponent(restaurant.lat + ", " + restaurant.lng) + "&key=" + apiKey;
+            return url;
         },
 
         //affichage des images récupérer via GOOGLE STREETVIEW dans leur card respective
         displayImgs(object, element, index) {
             let restauIndex = index+1;
 
-            let markerCoords = new google.maps.LatLng(
+            /*let markerCoords = new google.maps.LatLng(
                 element.lat, 
                 element.lng
-            );
+            );*/
 
             global.methods.generateCardTemplate(object, element, restauIndex);
             global.methods.generateModalCardTemplate("restaurantDetails", "allRestaurants", object, element, restauIndex);
 
-            global.methods.getImgs(element, markerCoords, "urlImg", restauIndex);
-            global.methods.getImgs(element, markerCoords, "modalImg", restauIndex);
+            //global.methods.getImgs(element, markerCoords, "urlImg", restauIndex);
+            //global.methods.getImgs(element, markerCoords, "modalImg", restauIndex);
 
         },
 
@@ -236,9 +191,10 @@ let global = {
             cardDetails.attr("id", "cardDetails"+index);
             cardDetails.attr("class", "row g-0 cardDetails");
 
-            let imgUrl = $('<div>');
+            let imgUrl = $('<img>');
             imgUrl.attr("id", "urlImg"+index);
             imgUrl.attr("class", "col-md-6 urlImg");
+            imgUrl.attr("src", global.methods.getImgs(restaurant));
 
             let restauBodyInfo = $('<div>');
             restauBodyInfo.attr("class", "col-md-6");
@@ -298,9 +254,10 @@ let global = {
             let modalBody = $('<div>');
             modalBody.attr("class", "modal-body d-flex justify-content-center"); 
 
-            let modalImg = $('<div>');
+            let modalImg = $('<img>');
             modalImg.attr("id", "modalImg"+index);
             modalImg.attr("class", "col-md-12 modalImg"); 
+            modalImg.attr("src", global.methods.getImgs(restaurant));
 
             let modalAdvice = $('<div>');
             modalAdvice.attr("id", "costumerAdvice"+index);
