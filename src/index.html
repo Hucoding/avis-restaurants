@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 
   <head>
     <title>Avis restaurant</title>
@@ -18,23 +18,17 @@
     <header>
       <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
         <a class="navbar-brand" href="#">Avis restaurant</a>
-
         <div class="collapse navbar-collapse" id="navbarCollapse">
-
           <ul class="navbar-nav ml-auto">
-
             <!-- Bouton de filtre pour filtrer les restaurants par notes -->
             <li class="nav-item">
-
               <p>
                 <label for="amount">Notes:</label>
                 <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
               </p>
-               
               <div id="slider-range"></div>
             </li>
           </ul>
-
         </div>
       </nav>
     </header>
@@ -50,38 +44,26 @@
             </div>
         </div>
     </div>
+
+    <footer class="bg-dark text-center text-white">
+      <div class="container p-4">
+        <p> Projet n°7 - Lancez votre propre site d'avis de restaurant </p>
+        <p style="font-size: 12px;"> Vos données de localisation ne sont pas enregistrées par notre site </p>
+      </div>
+      <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+        © 2020 Copyright:
+        <a class="text-white" href="#">Avis restaurant</a>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-ZtycdNkeRoLzI4qk6PF4NjyeOofDjS4&libraries=places"></script>
+    <script src="./scripts/services.js"></script>
+    <script src="./scripts/config.js"></script>
+    <script src="./scripts/classes/restaurantsJSON.js"></script>
+    <script src="./scripts/classes/advice.js"></script>
+    <script src="./scripts/classes/map.js"></script>
+    <script src="./scripts/main.js"></script> 
   </body>
-
-  <!-- Footer -->
-  <footer class="bg-dark text-center text-white">
-    <div class="container p-4">
-      <section class="mb-4">
-      </section>
-      <section class="mb-4">
-        <p>
-          Projet n°7 - Lancez votre propre site d'avis de restaurant
-        </p>
-        <p style="font-size: 12px;">
-          Vos données de localisation ne sont pas enregistrées par notre site
-        </p>
-      </section>
-    </div>
-    <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-      © 2020 Copyright:
-      <a class="text-white" href="#">Avis restaurant</a>
-    </div>
-  </footer>
-
-  <!-- Scripts -->
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
-  <script type="text/javascript" src="./scripts/services.js"></script>
-
-  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-ZtycdNkeRoLzI4qk6PF4NjyeOofDjS4&libraries=places"></script>
-
-  <script type="text/javascript" src="./scripts/config.js"></script>
-  <script type="text/javascript" src="./scripts/classes/restaurantsJSON.js"></script>
-  <script type="text/javascript" src="./scripts/classes/advice.js"></script>
-  <script type="text/javascript" src="./scripts/classes/map.js"></script>
-  <script type="text/javascript" src="./scripts/main.js"></script> 
-
 </html>
