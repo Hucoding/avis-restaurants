@@ -5,12 +5,12 @@ class RestaurantsJSON {
         this.address = address;
         this.lat = lat;
         this.lng = lng;
-        this.ratings = ratings;
+        this.ratings = ratings; //total des notes
         this.comment = comment;
-        this.stars = stars; // note avec commentaire
+        this.stars = stars; //note du commentaire
     }
 
-    //on récupére les avis des restaurants ainsique les notes des utilisateurs
+    //on récupére les avis des restaurants ainsiq ue les notes des utilisateurs
     getAdviceFromRestaurantsJSON(numberOfRestau, ratingsRestaurant) {
 
         if(ratingsRestaurant.length == 0) {
@@ -47,7 +47,7 @@ class RestaurantsJSON {
         }
     }
 
-    //afficher la moyenne des notes des restaurants
+    //Méthode pour afficher la moyenne des notes des restaurants
     displayAverage(restaurants) {
         const sum = Object.values(restaurants.ratings).reduce((acc, current) => acc + current.stars, 0);
         const ratingsAverage = sum / Object.values(restaurants.ratings).length;

@@ -10,32 +10,6 @@ let global = {
     },
     methods: {
 
-        //insertion d'une balise script pour initialiser la map de GOOGLE
-        /*loadScript() {
-            let mapScript = document.createElement('script');
-            mapScript.type = 'text/javascript';
-            mapScript.src = "https://maps.googleapis.com/maps/api/js?key=" + apiKey + "";
-            document.body.append(mapScript);  
-
-            let placesScript = document.createElement('script');
-            placesScript.type = 'text/javascript';
-            placesScript.src = "https://maps.googleapis.com/maps/api/js?key=" + apiKey + "&libraries=places";
-            document.body.append(placesScript);  
-        },*/
-        
-        /*restauNearByUser(lat, lng) {
-            console.log(lat, lng);
-            let service;
-
-            const location = new google.maps.LatLng(lat, lng);
-
-            let map = new google.maps.Map(document.getElementById("map"), {
-                center: location,
-                zoom: 15,
-            });
-
-        },*/
-
         //Filtrage des restaurants par leur moyenne de notes
         filterRatings(restaurants, ratingsAverage) {
             $(document).ready(function() {
@@ -86,14 +60,12 @@ let global = {
 
                 //affichage des cards des restaurants
                 global.methods.initDisplayRestaurants();
-                //global.methods.restauNearByUser(positionLat, positionLng);
 
             }, error => {
-                console.log("default user location");
+                //localisation refusée par l'utilisateur => localisation par défaut sur Paris
                 let positionLat = 48.856614;
                 let positionLng = 2.3522219;
                 
-                // if the user decline the location display the default marker in Paris 
                 let defaultUserCoords = new google.maps.LatLng(positionLat, positionLng);
 
                 locationIsActived = false;
@@ -102,14 +74,10 @@ let global = {
                 mapGoogle.initMap(positionLat, positionLng, locationIsActived);
                 global.data.map = mapGoogle;
 
-                console.log(global.data.map);
-
                 mapGoogle.addMarker(defaultUserCoords, true);
 
                 //affichage des cards des restaurants
                 global.methods.initDisplayRestaurants();
-                //global.methods.restauNearByUser(positionLat, positionLng);
-
             });
         },
 
@@ -144,12 +112,13 @@ let global = {
         },
 
        //récupération des photos des restaurant via GOOGLE STREETVIEW
-        getImgs(restaurant) {
+        getImgs(lat, lng) {
             let url;
-            if (status === google.maps.StreetViewStatus.OK) {
-                console.log("coucou");
-            } 
-            url = "https://maps.googleapis.com/maps/api/streetview?size=500x400&location=" + encodeURIComponent(restaurant.lat + ", " + restaurant.lng) + "&key=" + apiKey;
+            if (url != null || url != "") {
+                url = "https://maps.googleapis.com/maps/api/streetview?size=500x400&location=" + encodeURIComponent(lat + ", " + lng) + "&key=" + apiKey;
+            } else {
+                url = "https://www.unfe.org/wp-content/uploads/2019/04/SM-placeholder.png";
+            }
             return url;
         },
 
@@ -157,17 +126,8 @@ let global = {
         displayImgs(object, element, index) {
             let restauIndex = index+1;
 
-            /*let markerCoords = new google.maps.LatLng(
-                element.lat, 
-                element.lng
-            );*/
-
             global.methods.generateCardTemplate(object, element, restauIndex);
             global.methods.generateModalCardTemplate("restaurantDetails", "allRestaurants", object, element, restauIndex);
-
-            //global.methods.getImgs(element, markerCoords, "urlImg", restauIndex);
-            //global.methods.getImgs(element, markerCoords, "modalImg", restauIndex);
-
         },
 
         // génération d'une card d'un restaurant dans #allRestaurants
@@ -194,7 +154,7 @@ let global = {
             let imgUrl = $('<img>');
             imgUrl.attr("id", "urlImg"+index);
             imgUrl.attr("class", "col-md-6 urlImg");
-            imgUrl.attr("src", global.methods.getImgs(restaurant));
+            imgUrl.attr("src", global.methods.getImgs(restaurant.lat, restaurant.lng));
 
             let restauBodyInfo = $('<div>');
             restauBodyInfo.attr("class", "col-md-6");
@@ -257,7 +217,7 @@ let global = {
             let modalImg = $('<img>');
             modalImg.attr("id", "modalImg"+index);
             modalImg.attr("class", "col-md-12 modalImg"); 
-            modalImg.attr("src", global.methods.getImgs(restaurant));
+            modalImg.attr("src", global.methods.getImgs(restaurant.lat, restaurant.lng));
 
             let modalAdvice = $('<div>');
             modalAdvice.attr("id", "costumerAdvice"+index);
@@ -458,8 +418,6 @@ let global = {
 
             $('#allRestaurants').html('');
 
-            console.log(restaurants);
-
             restaurants.map((elRestau, index) => {
 
                 let restauIndex = index+1;
@@ -499,7 +457,6 @@ let global = {
                 global.methods.updateListing(global.data.restaurants);         
             });
         }
-
     }
 }
 
