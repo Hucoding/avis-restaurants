@@ -32,9 +32,6 @@ let global = {
                             function(success) { 
                                 global.methods.filterListing(global.data.restaurants, ui.values[0], ui.values[1]);
                             },
-                            function(error) { 
-                                /* code if some error */ 
-                            }
                         )
                     }
                 });
@@ -318,13 +315,6 @@ let global = {
             $("#closeButton"+index).click(() => {
                 $("#comment"+index).val('');
                 $("#ratingType"+index).val('');
-            });
-
-            $(".modal-backdrop").click(() => {
-                $("#comment"+index).val('');
-                $("#ratingType"+index).val('');
-                $("#restaurantDetails"+index).hide();
-                $(".modal-backdrop").remove();
             });
 
             $("#postAdviceButton"+index).click(() => {
