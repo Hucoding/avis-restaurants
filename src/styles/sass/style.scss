@@ -11,6 +11,24 @@ body {
     margin-right: 5px;
 }
 
+#ratings {
+    outline: none;
+    border: 0; 
+    font-weight: bold; 
+    color: #1ff6a8; 
+    background-color: #212529; 
+    text-align: center;
+}
+
+.noteLabel {
+    color: white;
+}
+
+.ui-slider-handle.ui-corner-all.ui-state-default {
+    border-radius: 100px;
+    outline: none;
+}
+
 .bodyApp {
     margin-top: 56px;
     height: 100%;
@@ -63,7 +81,6 @@ body {
 .costumerAdvice {
     margin: 20px;
 }
-
 
 table {
 	font-size: 1em;

@@ -12,7 +12,6 @@ class MyMap {
     }
 
     initMap(latMap, lngMap, locationIsActived) {
-        console.log("locationIsActived => " + locationIsActived);
         if(latMap != undefined && lngMap != undefined) {
 
             if (locationIsActived == true) {
@@ -25,7 +24,7 @@ class MyMap {
             this.map.addListener("click", (mapsMouseEvent) => {
                 let index;
                 this.addRestaurant(index, mapsMouseEvent.latLng);
-                this.getAddress(mapsMouseEvent.latLng)
+                this.getAddress(mapsMouseEvent.latLng);
             });
 
         } 
@@ -245,11 +244,7 @@ class MyMap {
                 urlImg = global.methods.getImgs(coords.lat(), coords.lng());
 
                 this.generateModalTemplateForNewRestaurant(coords, index, urlImg);  
-
-                $('#map').each(function(i) {
-                    $('[id=newRestaurant' + index + ']').slice(1).remove();
-                });
-
+                
                 $(`#newRestaurant${index}`).modal('show'); 
             }
         }
@@ -271,8 +266,6 @@ class MyMap {
             global.data.restaurants.push(restaurantsJSON);
                 
             let indexOfNewRestaurant = global.data.restaurants.length;
-
-            console.log(this.newDatas);
         
             this.newDatas.map((elRestau, indexRestau) => {  
                 if(indexRestau + 1 === this.newDatas.length) { // on lit uniquement le dernier index pour ne pas générer de doublons

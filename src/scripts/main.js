@@ -15,12 +15,13 @@ let global = {
             $(document).ready(function() {
                 $("#slider-range").slider({
                     range: true,
+                    orientation: "horizontal",
                     min: 0,
                     max: 5,
                     step: 0.5,
                     values: [0, 5],
                     slide: function(event, ui) {
-                        $("#amount").val(ui.values[0] + " - " + ui.values[1]);
+                        $("#ratings").val(ui.values[0] + " - " + ui.values[1]);
                         new Promise(function(resolve, reject) {
                             if (ratingsAverage != null) {
                                 resolve(ratingsAverage);
@@ -37,7 +38,7 @@ let global = {
                         )
                     }
                 });
-                $("#amount").val($("#slider-range").slider("values", 0) + " - " + $("#slider-range").slider("values", 1));
+                $("#ratings").val( "Notes : " + $("#slider-range").slider("values", 0) + " - " + $("#slider-range").slider("values", 1));
             });
         },
 
@@ -317,6 +318,13 @@ let global = {
             $("#closeButton"+index).click(() => {
                 $("#comment"+index).val('');
                 $("#ratingType"+index).val('');
+            });
+
+            $(".modal-backdrop").click(() => {
+                $("#comment"+index).val('');
+                $("#ratingType"+index).val('');
+                $("#restaurantDetails"+index).hide();
+                $(".modal-backdrop").remove();
             });
 
             $("#postAdviceButton"+index).click(() => {
