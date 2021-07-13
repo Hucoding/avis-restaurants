@@ -61,16 +61,17 @@ class MyMap {
             (results, status) => {
                 if (status === google.maps.places.PlacesServiceStatus.OK) {
                     for (let i = 0; i < results.length; i++) {
+
                         // création de l'objet du nouveau restaurant
-                        console.log(results[i].rating);
                         this.place = this.createObject(
                             results[i].name, 
                             "", 
                             results[i].vicinity, 
                             Number(results[i].geometry.location.lat().toFixed(7)), 
                             Number(results[i].geometry.location.lng().toFixed(7)), 
-                            [results[i].rating], 
-                            "", 
+                            [], 
+                            "",
+                            results[i].rating
                         );
 
                         let positionLat = results[i].geometry.location.lat();
@@ -88,7 +89,7 @@ class MyMap {
     }
 
     //fonction de création d'un nouvel objet (Place)
-    createObject(name, photo, address, lat, lng, ratings, comment) {
+    createObject(name, photo, address, lat, lng, ratings, comment, globalRating) {
         const restaurantsJSON = new RestaurantsJSON(
             name, 
             photo, 
@@ -96,8 +97,15 @@ class MyMap {
             lat, 
             lng, 
             ratings, 
-            comment, 
+            comment
         );
+
+        const advice = new Advice(
+            Number(globalRating),
+            ""
+        ); 
+
+        restaurantsJSON.ratings.push(advice);
 
         delete restaurantsJSON.comment;
         delete restaurantsJSON.stars;
