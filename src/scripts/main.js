@@ -131,186 +131,75 @@ let global = {
         // génération d'une card d'un restaurant dans #allRestaurants
         generateCardTemplate(object, restaurant, index) {
 
-            let buttonCard = $('<button>');
-            buttonCard.attr("id", "restauCard"+index);
-            buttonCard.attr("class", "restauCard");
-            buttonCard.attr("type", "button");
-            buttonCard.attr("data-toggle", "modal");
-            buttonCard.attr("data-target", "#restaurantDetails"+index);
-            buttonCard.attr("data-backdrop", "static");
-            buttonCard.attr("data-keyboard", "false");
+            let card = `<button id="restauCard${index}" class="restauCard" type="button" data-toggle="modal" data-target="#restaurantDetails${index}" data-backdrop="static" data-keyboard="false">
+            <div id="cardOfRestau${index}" class="card mb-3 cardOfRestau" style="max-width: 540px">
+                <div id="cardDetails${index}" class="row g-0 cardDetails">
+                    <img id="urlImg${index}" class="col-md-6 urlImg" src=${global.methods.getImgs(restaurant.lat, restaurant.lng)}>
+                    <div class="col-md-6">
+                        <div class="card-body cardBody"></div>
+                            <p class="card-title">${restaurant.restaurantName}</p>
+                            <p class="card-text">${restaurant.address}</p>
+                            <small class="text-muted" id="restauAverage${index}"></small>
+                        </div>
+                    </div>
+                </div>
+            </button>`; 
 
-            let cardBody = $('<div>');
-            cardBody.attr("id", "cardOfRestau"+index);
-            cardBody.attr("class", "card mb-3 cardOfRestau");
-            cardBody.attr("style", "max-width: 540px");
-
-            let cardDetails = $('<div>');
-            cardDetails.attr("id", "cardDetails"+index);
-            cardDetails.attr("class", "row g-0 cardDetails");
-
-            let imgUrl = $('<img>');
-            imgUrl.attr("id", "urlImg"+index);
-            imgUrl.attr("class", "col-md-6 urlImg");
-            imgUrl.attr("src", global.methods.getImgs(restaurant.lat, restaurant.lng));
-
-            let restauBodyInfo = $('<div>');
-            restauBodyInfo.attr("class", "col-md-6");
-
-            let restauBodyDetails = $('<div>');
-            restauBodyDetails.attr("class", "card-body cardBody");
-
-            let restauName = $('<p>');
-            restauName.attr("class", "card-title");
-            restauName.append(restaurant.restaurantName);
-
-            let restauAddress = $('<p>');
-            restauAddress.attr("class", "card-text");
-            restauAddress.append(restaurant.address);
-
-            let restauAverageBody = $('<p>');
-            restauAverageBody.attr("class", "card-text");
-
-            let restauAverage =  $('<small>');
-            restauAverage.attr("class", "text-muted");
-            restauAverage.attr("id", "restauAverage"+index);
-
-            $("#allRestaurants").append(buttonCard);
-
-            buttonCard.append(cardBody);
-            cardBody.append(cardDetails);
-            cardDetails.append(imgUrl);
-            cardDetails.append(restauBodyInfo);
-            restauBodyInfo.append(restauBodyDetails);
-            restauBodyInfo.append(restauName);
-            restauBodyInfo.append(restauAddress);
-            restauBodyInfo.append(restauAverage);
-            restauAverage.append(object.displayAverage(restaurant));
+            $("#allRestaurants").append(card);
+            $("#restauAverage"+index).append(object.displayAverage(restaurant));
 
         },
 
         generateModalCardTemplate(id, appendId, object, restaurant, index) {
 
-            let ratings = [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
-            let option = '';
+           let modal = `<div id="${id+index}" class="modal fade">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header d-flex justify-content-center">
+                            <h1>${restaurant.restaurantName}</h1>
+                        </div>
+                        <div class="modal-body d-flex justify-content-center">
+                            <img id="modalImg${index}" class="col-md-12 modalImg" src=${global.methods.getImgs(restaurant.lat, restaurant.lng)}>
+                        </div>
+                        <div id="costumerAdvice${index}" class="costumerAdvice"></div>
+                        <div id="costumerAdviceForm${index}" class="costumerAdviceForm">
+                            <form id="form2">
+                                <h3 class="col-md-12">Publiez votre avis :</h3>
+                                <div class="form-group col-md-12">
+                                    <label for="exampleFormControlSelect${index}">Ajoutez une note :</label>
+                                    <select class="form-control" id="ratingType${index}">
+                                        <option></option>
+                                        <option value="1">1</option>
+                                        <option value="1.5">1.5</option>
+                                        <option value="2">2</option>
+                                        <option value="2.5">2.5</option>
+                                        <option value="3">3</option>
+                                        <option value="3.5">3.5</option>
+                                        <option value="4">4</option>
+                                        <option value="4.5">4.5</option>
+                                        <option value="5">5</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-12">
+                                    <label for="formGroupExampleInput">Ajoutez votre commentaire :</label>
+                                    <textarea type="text" class="form-control" id="comment${index}" placeholder=""></textarea>
+                                </div>
+                                <button type="button" id="postAdviceButton${index}" class="btn btn-success btn-lg btn-block" style="border-radius: 0; margin-top: 10px;">Valider</button>
+                            </form>
+                            <div id="errorContainer${index}"></div>
+                        </div>
+                        <div class="modal-footer modal-footer--mine">
+                            <button id="closeButton${index}" type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
 
-            let modalContainer = $('<div>');
-            modalContainer.attr("id", id+index);
-            modalContainer.attr("class", "modal fade");
+            $("#"+appendId).append(modal);
 
-            let modalDialog = $('<div>');
-            modalDialog.attr("class", "modal-dialog modal-lg");
-
-            let modalContent = $('<div>');
-            modalContent.attr("class", "modal-content"); 
-
-            let modalHeader = $('<div>');
-            modalHeader.attr("class", "modal-header d-flex justify-content-center"); 
-
-            let modalTitle = $('<h1>');
-
-            let modalBody = $('<div>');
-            modalBody.attr("class", "modal-body d-flex justify-content-center"); 
-
-            let modalImg = $('<img>');
-            modalImg.attr("id", "modalImg"+index);
-            modalImg.attr("class", "col-md-12 modalImg"); 
-            modalImg.attr("src", global.methods.getImgs(restaurant.lat, restaurant.lng));
-
-            let modalAdvice = $('<div>');
-            modalAdvice.attr("id", "costumerAdvice"+index);
-            modalAdvice.attr("class", "costumerAdvice"); 
-
-            let modalFormAdvice = $('<div>');
-            modalFormAdvice.attr("id", "costumerAdviceForm"+index);
-            modalFormAdvice.attr("class", "costumerAdviceForm"); 
-
-            let modalFooter = $('<div>');
-            modalFooter.attr("class", "modal-footer modal-footer--mine");
-
-            let closeModalButton = $('<button>');
-            closeModalButton.attr("id", "closeButton"+index);
-            closeModalButton.attr("type", "button");
-            closeModalButton.attr("class", "btn btn-default");
-            closeModalButton.attr("data-dismiss", "modal");
-
-            $("#"+appendId).append(modalContainer);
-
-            let formAdvice = $('<form>');
-            formAdvice.attr("id", "form"+index);
-
-            let formAdviceTitle = $('<h3>');
-            formAdviceTitle.attr("class", "col-md-12");
-
-            let formSelectBody = $('<div>');
-            formSelectBody.attr("class", "form-group col-md-12");
-
-            let formSelectLabel= $('<label>');
-            formSelectLabel.attr("for", "exampleFormControlSelect"+index);
-
-            let selectRatings = $('<select>');
-            selectRatings.attr("class", "form-control");
-            selectRatings.attr("id", "ratingType"+index);
-
-            let optionRating = $('<option>');
-
-             let formAdviceBody = $('<div>');
-            formAdviceBody.attr("class", "col-md-12");
-
-            let formAdviceLabel = $('<label>');
-            formAdviceLabel.attr("for", "formGroupExampleInput");
-
-            let formAdviceTextarea = $('<textarea>');
-            formAdviceTextarea.attr("type", "text");
-            formAdviceTextarea.attr("class", "form-control");
-            formAdviceTextarea.attr("id", "comment"+index);
-            formAdviceTextarea.attr("placeholder", "");
-
-            let postAdviceButton = $('<button>');
-            postAdviceButton.attr("type", "button");
-            postAdviceButton.attr("id", "postAdviceButton"+index)
-            postAdviceButton.attr("class", "btn btn-success btn-lg btn-block");
-            postAdviceButton.attr("style", "border-radius: 0; margin-top: 10px;"); 
-
-            let errorContainer = $('<div>');
-            errorContainer.attr("id", "errorContainer"+index);
-
-            modalContainer.append(modalDialog);
-            modalDialog.append(modalContent);
-            modalContent.append(modalHeader);
-            modalHeader.append(modalTitle);
-            modalTitle.append(restaurant.restaurantName);
-            modalContent.append(modalBody);
-            modalBody.append(modalImg);
-            modalContent.append(modalAdvice);
-            modalContent.append(modalFormAdvice);
-            
-            modalFormAdvice.append(formAdvice);
-            formAdvice.append(formAdviceTitle);
-            formAdviceTitle.append("Publiez votre avis :");
-            formAdvice.append(formSelectBody);
-            formSelectBody.append(formSelectLabel);
-            formSelectLabel.append("Ajoutez une note :");
-            formSelectBody.append(selectRatings);
-            selectRatings.append(optionRating);
-            modalFormAdvice.append(errorContainer);
-
-            for (let i = 0; i < ratings.length; i++){
-                option += '<option value="'+ ratings[i] + '">' + ratings[i] + '</option>';
-            }
-            $('#ratingType' + index).append(option);
-
-            formAdvice.append(formAdviceBody);
-            formAdviceBody.append(formAdviceLabel);
-            formAdviceLabel.append("Ajoutez votre commentaire :");
-            formAdviceBody.append(formAdviceTextarea);
-            formAdvice.append(postAdviceButton);
-            postAdviceButton.append("Valider");
-
-            modalAdvice.append(object.getAdviceFromRestaurantsJSON(index, restaurant.ratings));
-            modalContent.append(modalFooter);
-            modalFooter.append(closeModalButton);
-            closeModalButton.append("Fermer");
+            $("#costumerAdvice" + index).append(
+                object.getAdviceFromRestaurantsJSON(index, restaurant.ratings)
+            );
 
             $("#closeButton"+index).click(() => {
                 $("#comment"+index).val('');
@@ -459,7 +348,6 @@ let global = {
 }
 
 //initialisation globale du projet
-const init = (() => {
+const init = (() => { 
     global.methods.getGeolocationUserPermission();
-})();
-
+})(); // fonction auto appelée

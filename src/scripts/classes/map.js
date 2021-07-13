@@ -62,13 +62,14 @@ class MyMap {
                 if (status === google.maps.places.PlacesServiceStatus.OK) {
                     for (let i = 0; i < results.length; i++) {
                         // création de l'objet du nouveau restaurant
+                        console.log(results[i].rating);
                         this.place = this.createObject(
                             results[i].name, 
                             "", 
                             results[i].vicinity, 
                             Number(results[i].geometry.location.lat().toFixed(7)), 
                             Number(results[i].geometry.location.lng().toFixed(7)), 
-                            [], 
+                            [results[i].rating], 
                             "", 
                         );
 
@@ -132,99 +133,37 @@ class MyMap {
     // création d'une modal pour un nouveau restaurant
     generateModalTemplateForNewRestaurant(coords, index, urlImg) {
 
-        let modalContainer = $('<div>');
-        modalContainer.attr("id", "newRestaurant"+index);
-        modalContainer.attr("class", "modal fade");
+        let modal = `
+            <div id="newRestaurant${index}" class="modal fade show" aria-modal="true" role="dialog" style="display: block; padding-left: 0px;">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header d-flex justify-content-center">
+                            <h1>Ajouter un restaurant</h1>
+                        </div>
+                    <div class="modal-body d-flex justify-content-center">
+                        <img id="modalNewRestauImg${index}" class="col-md-12 modalNewRestauImg" src=${urlImg}>
+                    </div>
+                    <div id="costumerAdviceNewRestau${index}" class="costumerAdviceNewRestau"></div>
+                    <form id="from1">
+                        <div class="form-group col-md-12">
+                            <label for="formGroupExampleInput">Nom :</label>
+                            <input type="text" class="form-control" id="nameField${index}" placeholder="ajouter le nom du restaurant ...">
+                        </div>
+                        <div class="form-group col-md-12">
+                            <label for="formGroupExampleInput">Adresse :</label>
+                            <input type="text" class="form-control" style="pointer-events:none" id="adressField${index}" placeholder="ajouter l'adresse du restaurant ..." disabled="">
+                        </div>
+                    </form>
+                    <div id="errorContainer1"></div>
+                    <div class="modal-footer modal-footer--mine">
+                        <button id="saveRestau${index}" type="button" class="btn btn-default" data-dismiss="modal" disabled="disabled">Ajouter</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `;
 
-        let modalDialog = $('<div>');
-        modalDialog.attr("class", "modal-dialog modal-lg");
-
-        let modalContent = $('<div>');
-        modalContent.attr("class", "modal-content"); 
-
-        let modalHeader = $('<div>');
-        modalHeader.attr("class", "modal-header d-flex justify-content-center"); 
-
-        let modalTitle = $('<h1>');
-
-        let modalBody = $('<div>');
-        modalBody.attr("class", "modal-body d-flex justify-content-center"); 
-
-        let modalNewRestauImg = $('<img>');
-        modalNewRestauImg.attr("id", "modalNewRestauImg"+index);
-        modalNewRestauImg.attr("class", "col-md-12 modalNewRestauImg"); 
-        modalNewRestauImg.attr("src", urlImg);
-
-        let modalAdvice = $('<div>');
-        modalAdvice.attr("id", "costumerAdviceNewRestau"+index);
-        modalAdvice.attr("class", "costumerAdviceNewRestau"); 
-
-        let modalFooter = $('<div>');
-        modalFooter.attr("class", "modal-footer modal-footer--mine");
-
-        let closeModalButton = $('<button>');
-        closeModalButton.attr("id", "saveRestau"+index);
-        closeModalButton.attr("type", "button");
-        closeModalButton.attr("class", "btn btn-default");
-        closeModalButton.attr("data-dismiss", "modal");
-        closeModalButton.attr("disabled", true);
-
-        let formNewRestaurant = $('<form>');
-        formNewRestaurant.attr("id", "from"+index);
-
-        let addName = $('<div>');
-        addName.attr("class", "form-group col-md-12");
-
-        let addNameLabel = $('<label>');
-        addNameLabel.attr("for", "formGroupExampleInput");
-
-        let addNameInput = $('<input>');
-        addNameInput.attr("type", "text");
-        addNameInput.attr("class", "form-control");
-        addNameInput.attr("id", "nameField"+index);
-        addNameInput.attr("placeholder", "ajouter le nom du restaurant ...");
-
-        let addAdress = $('<div>');
-        addAdress.attr("class", "form-group col-md-12");
-
-        let addAdressLabel = $('<label>');
-        addAdressLabel.attr("for", "formGroupExampleInput");
-
-        let addAdressInput = $('<input>');
-        addAdressInput.attr("type", "text");
-        addAdressInput.attr("class", "form-control");
-        addAdressInput.attr("style", "pointer-events:none");
-        addAdressInput.attr("id", "adressField"+index);
-        addAdressInput.attr("placeholder", "ajouter l'adresse du restaurant ...");
-
-        let errorContainer = $('<div>');
-        errorContainer.attr("id", "errorContainer"+index);
-
-        $("#map").append(modalContainer);
-
-        modalContainer.append(modalDialog);
-        modalDialog.append(modalContent);
-        modalContent.append(modalHeader);
-        modalHeader.append(modalTitle);
-        modalTitle.append("Ajouter un restaurant");
-        modalContent.append(modalBody);
-        modalBody.append(modalNewRestauImg);
-        modalContent.append(modalAdvice);
-        modalContent.append(formNewRestaurant);
-        formNewRestaurant.append(formNewRestaurant);
-        formNewRestaurant.append(addName);
-        addName.append(addNameLabel);
-        addNameLabel.append("Nom :");
-        addName.append(addNameInput);
-        formNewRestaurant.append(addAdress);
-        addAdress.append(addAdressLabel);
-        addAdressLabel.append("Adresse :");
-        addAdress.append(addAdressInput);
-        modalAdvice.append("");
-        modalContent.append(errorContainer);
-        modalContent.append(modalFooter);
-        modalFooter.append(closeModalButton);
-        closeModalButton.append("Ajouter");
+        $("#map").append(modal);
 
         $("#newRestaurant"+index).modal('show');
         $("#nameField"+index).val('');
@@ -244,7 +183,7 @@ class MyMap {
                 urlImg = global.methods.getImgs(coords.lat(), coords.lng());
 
                 this.generateModalTemplateForNewRestaurant(coords, index, urlImg);  
-                
+
                 $(`#newRestaurant${index}`).modal('show'); 
             }
         }
