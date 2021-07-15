@@ -97,7 +97,6 @@ let global = {
 
                 if (restaurantsJSON.displayAverage(elRestau).between(lowerValue, upperValue)) {
                     global.data.filteredRestauResults.push(elRestau);
-                    console.log(global.data.filteredRestauResults);
                 }
                 global.methods.updateListing(global.data.filteredRestauResults);
                 global.methods.updateMarkers(global.data.filteredRestauResults);
