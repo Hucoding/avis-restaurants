@@ -10,7 +10,7 @@ class RestaurantsJSON {
         this.stars = stars; //note du commentaire
     }
 
-    //on récupére les avis des restaurants ainsiq ue les notes des utilisateurs
+    //on récupére les avis des restaurants ainsi que les notes des utilisateurs
     getAdviceFromRestaurantsJSON(numberOfRestau, ratingsRestaurant) {
 
         if(ratingsRestaurant.length == 0) {

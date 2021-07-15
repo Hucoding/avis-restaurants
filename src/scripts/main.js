@@ -13,29 +13,25 @@ let global = {
         //Filtrage des restaurants par leur moyenne de notes
         filterRatings(restaurants, ratingsAverage) {
             $(document).ready(function() {
+                let rating1;
+                let rating2;
                 $("#slider-range").slider({
                     range: true,
                     orientation: "horizontal",
                     min: 0,
                     max: 5,
-                    step: 0.5,
+                    step: 1,
                     values: [0, 5],
                     slide: function(event, ui) {
-                        $("#ratings").val(ui.values[0] + " - " + ui.values[1]);
-                        new Promise(function(resolve, reject) {
-                            if (ratingsAverage != null) {
-                                resolve(ratingsAverage);
-                            } else {
-                                reject("Error");
-                            }
-                        }).then(
-                            function(success) { 
-                                global.methods.filterListing(global.data.restaurants, ui.values[0], ui.values[1]);
-                            },
-                        )
-                    }
+                       rating1 =  ui.values[0];
+                       rating2 =  ui.values[1];
+
+                       global.methods.filterListing(global.data.restaurants, rating1, rating2);
+
+                       $("#ratings").val("Moyennes : " + rating1 + " - " + rating2);
+                    },
                 });
-                $("#ratings").val( "Notes : " + $("#slider-range").slider("values", 0) + " - " + $("#slider-range").slider("values", 1));
+                $("#ratings").val( "Moyennes : " + $("#slider-range").slider("values", 0) + " - " + $("#slider-range").slider("values", 1));
             });
         },
 
@@ -101,6 +97,7 @@ let global = {
 
                 if (restaurantsJSON.displayAverage(elRestau).between(lowerValue, upperValue)) {
                     global.data.filteredRestauResults.push(elRestau);
+                    console.log(global.data.filteredRestauResults);
                 }
                 global.methods.updateListing(global.data.filteredRestauResults);
                 global.methods.updateMarkers(global.data.filteredRestauResults);
@@ -163,7 +160,7 @@ let global = {
                         </div>
                         <div id="costumerAdvice${index}" class="costumerAdvice"></div>
                         <div id="costumerAdviceForm${index}" class="costumerAdviceForm">
-                            <form id="form2">
+                            <form id="form${index}">
                                 <h3 class="col-md-12">Publiez votre avis :</h3>
                                 <div class="form-group col-md-12">
                                     <label for="exampleFormControlSelect${index}">Ajoutez une note :</label>
